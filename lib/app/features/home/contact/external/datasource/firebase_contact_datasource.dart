@@ -9,7 +9,8 @@ class FirebaseContactDatasource implements IContactDatasource {
 
   @override
   Future<List<ContactModel>> getContacts(String uid) async {
-    final contacts = await firestore.collection(uid).doc('contacts').get();
-    return contacts.data()?.map((e) => ContactModel.fromJson(e.data())).toList();
+    final contacts = await firestore.collection('user').doc(uid).get();
+    final contatcList = (contacts.data()?['contacts'] as List?) ?? [];
+    return contatcList.map((e) => ContactModel.fromJson(e.data())).toList();
   }
 }

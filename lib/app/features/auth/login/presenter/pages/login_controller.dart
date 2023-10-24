@@ -1,6 +1,5 @@
 import 'package:mensageiro/app/core/store/auth/auth_status.dart';
 import 'package:mensageiro/app/core/store/auth/auth_store.dart';
-import 'package:mensageiro/app/features/auth/login/domain/entity/logged_user.dart';
 import 'package:mensageiro/app/features/auth/login/domain/usecase/login_with_email_and_password.dart';
 import 'package:mobx/mobx.dart';
 

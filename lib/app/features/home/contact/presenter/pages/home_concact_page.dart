@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_modular/flutter_modular.dart';
 import 'package:mensageiro/app/features/home/contact/presenter/pages/contacts_controller.dart';
 
 class HomeContactPage extends StatefulWidget {
-  const HomeContactPage({super.key});
+  final ContactsController controller;
+  const HomeContactPage({super.key, required this.controller});
 
   @override
   State<HomeContactPage> createState() => _HomeContactPageState();
 }
 
 class _HomeContactPageState extends State<HomeContactPage> {
-  ContactsController controller = Modular.get<ContactsController>();
+  late ContactsController controller;
+  @override
+  void initState() {
+    super.initState();
+    controller = widget.controller;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,7 +41,11 @@ class _HomeContactPageState extends State<HomeContactPage> {
               return ListTile(
                 title: Text(contact.name),
                 subtitle: Text(contact.phone),
-                leading: CircleAvatar(backgroundImage:contact.photo != null ? NetworkImage(contact.photo!): null,),
+                leading: CircleAvatar(
+                  backgroundImage: contact.photo != null
+                      ? NetworkImage(contact.photo!)
+                      : null,
+                ),
               );
             },
           );
