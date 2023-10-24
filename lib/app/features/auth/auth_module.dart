@@ -5,9 +5,7 @@ import 'package:mensageiro/app/features/auth/register/register_module.dart';
 
 class AuthModule extends Module {
   @override
-  void binds(i) {
-    i.addInstance(FirebaseAuth.instance);
-  }
+  void binds(i) {}
 
   @override
   void routes(r) {

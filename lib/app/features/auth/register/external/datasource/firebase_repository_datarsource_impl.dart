@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mensageiro/app/core/errors/errors.dart';
 import 'package:mensageiro/app/features/auth/login/domain/entity/logged_user.dart';
 import 'package:mensageiro/app/features/auth/register/domain/entity/register_auth.dart';
 import 'package:mensageiro/app/features/auth/register/infra/datasource/i_auth_register_datasource.dart';
@@ -13,22 +14,38 @@ class FireBaseRepositoryDataSource implements IAuthRegisterDatasource {
   @override
   Future<LoggedUser> registerWithEmailAndPassword(
       {required RegisterAuth regoister}) async {
-    final credentials = await auth.createUserWithEmailAndPassword(
-        email: regoister.email, password: regoister.password);
-    await credentials.user!.updateDisplayName(regoister.name);
-    await credentials.user!.linkWithPhoneNumber(regoister.phone);
+    try {
+      final credentials = await auth.createUserWithEmailAndPassword(
+          email: regoister.email, password: regoister.password);
+      await credentials.user!.updateDisplayName(regoister.name);
+      await credentials.user!.linkWithPhoneNumber(regoister.phone);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        throw ServerException(message: 'A senha fornecida é muito fraca');
+      } else if (e.code == 'email-already-in-use') {
+        throw ServerException(message: 'Email já cadastrado!');
+      }
+    } catch (e) {
+      throw ServerException(
+          message: 'Erro interno no aplicativo, tente novamente mais tarde');
+    }
+
     final user = {
       "name": regoister.name,
       "email": regoister.email,
       "phone": regoister.phone,
       "contacts": [],
     };
-    await firestore.collection('users').doc(regoister.phone).set(user);
+    await firestore
+        .collection('users')
+        .doc(regoister.phone)
+        .set(user)
+        .onError((error, stackTrace) => print(error));
     return LoggedUser(
-      email: credentials.user!.email!,
-      name: credentials.user!.displayName!,
-      uid: credentials.user!.uid,
-      phoneNumber: credentials.user!.phoneNumber!,
+      email: regoister.email,
+      name: regoister.name,
+      uid: regoister.phone,
+      phoneNumber: regoister.phone,
     );
   }
 }

@@ -35,9 +35,9 @@ class _HomeContactPageState extends State<HomeContactPage> {
           );
         } else {
           return ListView.builder(
-            itemCount: controller.listContacts.length,
+            itemCount: controller.listContacts?.length ?? 0,
             itemBuilder: (_, index) {
-              final contact = controller.listContacts[index];
+              final contact = controller.listContacts![index];
               return ListTile(
                 title: Text(contact.name),
                 subtitle: Text(contact.phone),

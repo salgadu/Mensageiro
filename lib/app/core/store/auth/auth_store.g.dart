@@ -9,6 +9,22 @@ part of 'auth_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$AuthStore on AuthStoreBase, Store {
+  late final _$authStatusAtom =
+      Atom(name: 'AuthStoreBase.authStatus', context: context);
+
+  @override
+  AuthStatus? get authStatus {
+    _$authStatusAtom.reportRead();
+    return super.authStatus;
+  }
+
+  @override
+  set authStatus(AuthStatus? value) {
+    _$authStatusAtom.reportWrite(value, super.authStatus, () {
+      super.authStatus = value;
+    });
+  }
+
   late final _$userAtom = Atom(name: 'AuthStoreBase.user', context: context);
 
   @override
@@ -39,8 +55,20 @@ mixin _$AuthStore on AuthStoreBase, Store {
   }
 
   @override
+  dynamic setAuthStatus(AuthStatus value) {
+    final _$actionInfo = _$AuthStoreBaseActionController.startAction(
+        name: 'AuthStoreBase.setAuthStatus');
+    try {
+      return super.setAuthStatus(value);
+    } finally {
+      _$AuthStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
+authStatus: ${authStatus},
 user: ${user}
     ''';
   }

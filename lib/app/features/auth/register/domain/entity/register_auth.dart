@@ -2,14 +2,12 @@ class RegisterAuth {
   final String email;
   final String password;
   final String name;
-  final String lastName;
   final String phone;
 
   RegisterAuth({
     required this.email,
     required this.password,
     required this.name,
-    required this.lastName,
     required this.phone,
   });
 
@@ -21,9 +19,6 @@ class RegisterAuth {
       return false;
     }
     if (name.isEmpty) {
-      return false;
-    }
-    if (lastName.isEmpty) {
       return false;
     }
     if (phone.isEmpty) {
