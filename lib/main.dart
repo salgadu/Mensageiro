@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
 import 'package:mensageiro/app_widget.dart';
+import 'package:mensageiro/features/auth/auth_module.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -23,6 +24,7 @@ class AppModule extends Module {
   @override
   void routes(r) {
     r.child('/', child: (context) => const HomePage());
+    r.module('/auth', module: AuthModule());
   }
 }
 
@@ -32,8 +34,18 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Home Page')),
-      body: const Center(
-        child: Text('This is initial page'),
+      body: Center(
+        child: Column(
+          children: [
+            ElevatedButton(
+                onPressed: () => Modular.to.navigate('/auth/login'),
+                child: const Text('Login')),
+            ElevatedButton(
+              onPressed: () => Modular.to.navigate('/auth/register'),
+              child: const Text('register'),
+            )
+          ],
+        ),
       ),
     );
   }

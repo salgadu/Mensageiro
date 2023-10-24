@@ -11,7 +11,7 @@ class AuthModule extends Module {
 
   @override
   void routes(r) {
-    r.module('/login', module: LoginModule());
-    r.module('/register', module: RegisterModule());
+    r.module('/login/', module: LoginModule());
+    r.module('/register/', module: RegisterModule());
   }
 }
