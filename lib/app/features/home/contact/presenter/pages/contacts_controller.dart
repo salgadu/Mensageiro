@@ -11,9 +11,9 @@ abstract class ContactsControllerBase with Store {
   final IGetContacts getContact;
   final AuthStore authStore;
 
-  ContactsControllerBase({required this.getContact, required this.authStore}) {
+  ContactsControllerBase(this.getContact, this.authStore) {
     when((_) => listContacts == null,
-        () async => await getContacts(id: authStore.user!.uid));
+        () async => await getContacts(id: '5599999999999'));
   }
   @observable
   bool isLoading = false;
@@ -34,6 +34,42 @@ abstract class ContactsControllerBase with Store {
   Future<void> getContacts({required String id}) async {
     setLoadind(true);
     final result = await getContact(uid: id);
+    result.fold((l) {
+      setError(true);
+      setLoadind(false);
+    }, (r) {
+      setListContacts(r);
+      setLoadind(false);
+    });
+  }
+
+  Future<void> addContact(Contact contact, String newContactNumber) async {
+    setLoadind(true);
+    final result = await getContact(uid: contact.id);
+    result.fold((l) {
+      setError(true);
+      setLoadind(false);
+    }, (r) {
+      setListContacts(r);
+      setLoadind(false);
+    });
+  }
+
+  Future<void> deleteContact(Contact contact) async {
+    setLoadind(true);
+    final result = await getContact(uid: contact.id);
+    result.fold((l) {
+      setError(true);
+      setLoadind(false);
+    }, (r) {
+      setListContacts(r);
+      setLoadind(false);
+    });
+  }
+
+  Future<void> updateContact(Contact contact) async {
+    setLoadind(true);
+    final result = await getContact(uid: contact.id);
     result.fold((l) {
       setError(true);
       setLoadind(false);

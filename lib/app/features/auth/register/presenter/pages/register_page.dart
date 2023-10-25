@@ -7,7 +7,7 @@ import 'register_controller.dart';
 
 class RegisterPage extends StatefulWidget {
   final RegisterController controller;
-  const RegisterPage({super.key, required this.controller});
+  const RegisterPage({Key? key, required this.controller});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -40,38 +40,26 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
       body: Observer(builder: (context) {
         if (controller.isLoading) {
-          return const Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Center(
-                child: CircularProgressIndicator(),
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              Text("Registrando, aguarde..."),
-            ],
+          return const Center(
+            child: CircularProgressIndicator(),
           );
         } else if (controller.isError) {
           return Center(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('Erro ao tentar fazer registro'),
-                const SizedBox(
-                  height: 15,
-                ),
+                const Text('Error registering'),
+                const SizedBox(height: 15),
                 ElevatedButton(
-                    onPressed: () => controller.setError(false),
-                    child: const Text('Ok'))
+                  onPressed: () => controller.setError(false),
+                  child: const Text('OK'),
+                ),
               ],
             ),
           );
         } else {
           return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 36),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: SingleChildScrollView(
               child: Form(
                 key: _formKey,
@@ -82,76 +70,83 @@ class _RegisterPageState extends State<RegisterPage> {
                     TextFormField(
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Por favor, insira um nome';
+                          return 'Please enter a name';
                         }
                         return null;
                       },
                       controller: nome,
-                      decoration: const InputDecoration(
-                        labelText: 'Nome',
+                      decoration: InputDecoration(
+                        labelText: 'Name',
                         border: OutlineInputBorder(),
                       ),
                     ),
+                    SizedBox(height: 20),
                     TextFormField(
                       validator: (value) {
-                        if (value == null ||
-                            value.isEmpty ||
-                            !value.contains('@')) {
-                          return 'Por favor, insira um email válido';
+                        if (value == null || value.isEmpty || !value.contains('@')) {
+                          return 'Please enter a valid email';
                         }
                         return null;
                       },
                       controller: email,
                       keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Email',
                         border: OutlineInputBorder(),
                       ),
                     ),
+                    SizedBox(height: 20),
                     TextFormField(
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Por favor, insira uma senha';
+                          return 'Please enter a password';
                         }
                         return null;
                       },
                       controller: password,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Password',
                         border: OutlineInputBorder(),
                       ),
                       obscureText: true,
                     ),
+                    SizedBox(height: 20),
                     TextFormField(
-                        validator: (value) {
-                          if (value == null ||
-                              value.isEmpty ||
-                              value.length != 20) {
-                            return 'Por favor, insira um numero de telefne válido';
-                          }
-                          return null;
-                        },
-                        controller: phone,
-                        inputFormatters: [number],
-                        keyboardType: TextInputType.phone,
-                        decoration: const InputDecoration(
-                          labelText: 'Phone',
-                          border: OutlineInputBorder(),
-                        )),
+                      validator: (value) {
+                        if (value == null || value.isEmpty || value.length != 20) {
+                          return 'Please enter a valid phone number';
+                        }
+                        return null;
+                      },
+                      controller: phone,
+                      inputFormatters: [number],
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        labelText: 'Phone',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () async {
                         await Future.delayed(const Duration(seconds: 3));
-                        // Navigator.pop(context);
                         if (_formKey.currentState!.validate()) {
                           final data = RegisterAuth(
-                              email: email.text,
-                              name: nome.text,
-                              password: password.text,
-                              phone:
-                                  phone.text.replaceAll(RegExp(r'[^0-9]'), ''));
+                            email: email.text,
+                            name: nome.text,
+                            password: password.text,
+                            phone: phone.text.replaceAll(RegExp(r'[^0-9]'), ''),
+                          );
                           await controller.registerUser(data: data);
                         }
                       },
+                      style: ElevatedButton.styleFrom(
+                        primary: Color(0xFF6651F6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                        minimumSize: Size(200, 50),
+                      ),
                       child: const Text('Register'),
                     ),
                   ],

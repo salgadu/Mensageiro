@@ -1,4 +1,5 @@
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:mensageiro/app/app_module.dart';
 import 'package:mensageiro/app/features/home/contact/domain/repository/contact_repository.dart';
 import 'package:mensageiro/app/features/home/contact/domain/usecases/get_contacts.dart';
 import 'package:mensageiro/app/features/home/contact/external/datasource/firebase_contact_datasource.dart';
@@ -15,6 +16,11 @@ class ContatctsModule extends Module {
     i.add<IContactDatasource>(FirebaseContactDatasource.new);
     i.add(ContactsController.new);
   }
+
+  @override
+  List<Module> get imports => [
+        CoreModule(),
+      ];
 
   @override
   void routes(r) {

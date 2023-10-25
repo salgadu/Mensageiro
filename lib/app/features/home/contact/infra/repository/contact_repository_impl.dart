@@ -18,20 +18,32 @@ class ContactRepositoryImpl implements IContactRepository {
   }
   
   @override
-  Future<Either<Failure, bool>> addContact(Contact contact) {
-    // TODO: implement addContact
-    throw UnimplementedError();
+  Future<Either<Failure, bool>> addContact(Contact contact) async {
+    try {
+      final result = await datasource.addContact(contact);
+      return Right(result);
+    } on Failure catch (e) {
+      return Left(e);
+    }
   }
   
-  @override
-  Future<Either<Failure, bool>> deleteContact(Contact contact) {
-    // TODO: implement deleteContact
-    throw UnimplementedError();
+    @override
+  Future<Either<Failure, bool>> deleteContact(Contact contact) async {
+    try {
+      final result = await datasource.deleteContact(contact);
+      return Right(result);
+    } on Failure catch (e) {
+      return Left(e);
+    }
   }
-  
+
   @override
-  Future<Either<Failure, bool>> updateContact(Contact contact) {
-    // TODO: implement updateContact
-    throw UnimplementedError();
+  Future<Either<Failure, bool>> updateContact(Contact contact) async {
+    try {
+      final result = await datasource.updateContact(contact);
+      return Right(result);
+    } on Failure catch (e) {
+      return Left(e);
+    }
   }
 }

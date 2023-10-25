@@ -15,6 +15,7 @@ class RegisterModule extends Module {
     i.add<IRegisterRepository>(AuthRegisterRepository.new);
     i.add<IAuthRegisterDatasource>(FireBaseRepositoryDataSource.new);
     i.add(RegisterController.new);
+    
   }
 
   @override

@@ -16,7 +16,7 @@ class LoginPage extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 20), // Increased spacing
             TextFormField(
               obscureText: true,
               decoration: InputDecoration(
@@ -24,9 +24,16 @@ class LoginPage extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 20), // Increased spacing
             ElevatedButton(
               onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                primary: Color(0xFF6651F6), // Viber Purple
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                ),
+                minimumSize: Size(200, 50), // Larger button size
+              ),
               child: Text('Login'),
             ),
           ],
