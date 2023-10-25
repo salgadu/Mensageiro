@@ -32,7 +32,6 @@ abstract class RegisterControllerBase with Store {
     setLoadind(true);
     setError(false);
     result.fold((error) {
-      print(error.message);
       setLoadind(false);
       setError(true);
     }, (user) {

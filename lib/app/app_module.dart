@@ -4,6 +4,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:mensageiro/app/core/store/auth/auth_store.dart';
 import 'package:mensageiro/app/features/auth/auth_module.dart';
 import 'package:mensageiro/app/features/home/contact/contatcts_module.dart';
+import 'package:mensageiro/app/features/home/home_module.dart';
 import 'package:mensageiro/app/home_page.dart';
 
 class CoreModule extends Module {
@@ -20,6 +21,6 @@ class AppModule extends Module {
   void routes(r) {
     r.child('/', child: (context) => const HomePage());
     r.module('/auth', module: AuthModule());
-    r.module('/home', module: ContatctsModule());
+    r.module('/home', module: HomeModule());
   }
 }
