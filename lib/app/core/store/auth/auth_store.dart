@@ -12,7 +12,7 @@ abstract class AuthStoreBase with Store {
     reaction((_) => authStatus, (_) {
       switch (authStatus) {
         case AuthStatus.Authenticated:
-          Modular.to.navigate('/home/contacts/');
+          Modular.to.navigate('/home/contacts');
           break;
         case AuthStatus.Unauteticated:
           Modular.to.popAndPushNamed('/');

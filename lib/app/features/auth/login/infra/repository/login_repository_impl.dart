@@ -16,7 +16,9 @@ class LoginRepositoryImpl implements LoginRepository {
       final user = await datasource.loginWithEmailAndPassword(
           email: email, password: password);
       return Right(user);
-    } on ServerException {
+    } on ServerException catch (e) {
+      return Left(e);
+    } catch (e) {
       return Left(ServerException(message: "Erro no servidor"));
     }
   }

@@ -1,3 +1,4 @@
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:mensageiro/app/core/store/auth/auth_status.dart';
 import 'package:mensageiro/app/core/store/auth/auth_store.dart';
 import 'package:mensageiro/app/features/auth/register/domain/entity/register_auth.dart';
@@ -9,10 +10,10 @@ part 'register_controller.g.dart';
 class RegisterController = RegisterControllerBase with _$RegisterController;
 
 abstract class RegisterControllerBase with Store {
-  final AuthStore authStore;
+  AuthStore authStore = Modular.get<AuthStore>();
   final IRegisterUser register;
 
-  RegisterControllerBase({required this.authStore, required this.register});
+  RegisterControllerBase(this.register);
 
   @observable
   bool isLoading = false;
@@ -27,16 +28,17 @@ abstract class RegisterControllerBase with Store {
   setError(bool value) => isError = value;
 
   Future<void> registerUser({required RegisterAuth data}) async {
-    authStore.setAuthStatus(AuthStatus.Unauteticated);
-    final result = await register(data);
+    final result = await register.call(data);
     setLoadind(true);
     setError(false);
     result.fold((error) {
+      print(error.message);
+      setLoadind(false);
       setError(true);
     }, (user) {
+      setLoadind(false);
       authStore.setUser(user);
       authStore.setAuthStatus(AuthStatus.Authenticated);
     });
-    setLoadind(false);
   }
 }

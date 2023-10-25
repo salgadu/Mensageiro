@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:mensageiro/app/features/auth/login/login_module.dart';
 import 'package:mensageiro/app/features/auth/register/register_module.dart';

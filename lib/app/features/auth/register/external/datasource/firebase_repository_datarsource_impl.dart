@@ -15,10 +15,8 @@ class FireBaseRepositoryDataSource implements IAuthRegisterDatasource {
   Future<LoggedUser> registerWithEmailAndPassword(
       {required RegisterAuth regoister}) async {
     try {
-      final credentials = await auth.createUserWithEmailAndPassword(
+      await auth.createUserWithEmailAndPassword(
           email: regoister.email, password: regoister.password);
-      await credentials.user!.updateDisplayName(regoister.name);
-      await credentials.user!.linkWithPhoneNumber(regoister.phone);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         throw ServerException(message: 'A senha fornecida é muito fraca');

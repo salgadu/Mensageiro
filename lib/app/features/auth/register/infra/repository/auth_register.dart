@@ -16,6 +16,8 @@ class AuthRegisterRepository implements IRegisterRepository {
       final result =
           await datasource.registerWithEmailAndPassword(regoister: regoister);
       return Right(result);
+    } on ServerException catch (e) {
+      return Left(e);
     } catch (e) {
       return Left(ServerException(message: "Erro no servidor"));
     }

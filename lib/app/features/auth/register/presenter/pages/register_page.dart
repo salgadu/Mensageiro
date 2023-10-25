@@ -41,7 +41,6 @@ class _RegisterPageState extends State<RegisterPage> {
       body: Observer(builder: (context) {
         if (controller.isLoading) {
           return const Column(
-            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -55,99 +54,112 @@ class _RegisterPageState extends State<RegisterPage> {
             ],
           );
         } else if (controller.isError) {
-          return const Center(
-            child: Text('Erro ao tentar fazer registro'),
+          return Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Erro ao tentar fazer registro'),
+                const SizedBox(
+                  height: 15,
+                ),
+                ElevatedButton(
+                    onPressed: () => controller.setError(false),
+                    child: const Text('Ok'))
+              ],
+            ),
           );
-        }
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 36),
-          child: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  TextFormField(
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor, insira um nome';
-                      }
-                      return null;
-                    },
-                    controller: nome,
-                    decoration: const InputDecoration(
-                      labelText: 'Nome',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  TextFormField(
-                    validator: (value) {
-                      if (value == null ||
-                          value.isEmpty ||
-                          !value.contains('@')) {
-                        return 'Por favor, insira um email válido';
-                      }
-                      return null;
-                    },
-                    controller: email,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  TextFormField(
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor, insira uma senha';
-                      }
-                      return null;
-                    },
-                    controller: password,
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                      border: OutlineInputBorder(),
-                    ),
-                    obscureText: true,
-                  ),
-                  TextFormField(
+        } else {
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 36),
+            child: SingleChildScrollView(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    TextFormField(
                       validator: (value) {
-                        if (value == null ||
-                            value.isEmpty ||
-                            value.length != 20) {
-                          return 'Por favor, insira um numero de telefne válido';
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, insira um nome';
                         }
                         return null;
                       },
-                      controller: phone,
-                      inputFormatters: [number],
-                      keyboardType: TextInputType.phone,
+                      controller: nome,
                       decoration: const InputDecoration(
-                        labelText: 'Phone',
+                        labelText: 'Nome',
                         border: OutlineInputBorder(),
-                      )),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await Future.delayed(const Duration(seconds: 3));
-                      // Navigator.pop(context);
-                      if (_formKey.currentState!.validate()) {
-                        final data = RegisterAuth(
-                            email: email.text,
-                            name: nome.text,
-                            password: password.text,
-                            phone:
-                                phone.text.replaceAll(RegExp(r'[^0-9]'), ''));
-                        await controller.registerUser(data: data);
-                      }
-                    },
-                    child: const Text('Register'),
-                  ),
-                ],
+                      ),
+                    ),
+                    TextFormField(
+                      validator: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            !value.contains('@')) {
+                          return 'Por favor, insira um email válido';
+                        }
+                        return null;
+                      },
+                      controller: email,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    TextFormField(
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, insira uma senha';
+                        }
+                        return null;
+                      },
+                      controller: password,
+                      decoration: const InputDecoration(
+                        labelText: 'Password',
+                        border: OutlineInputBorder(),
+                      ),
+                      obscureText: true,
+                    ),
+                    TextFormField(
+                        validator: (value) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              value.length != 20) {
+                            return 'Por favor, insira um numero de telefne válido';
+                          }
+                          return null;
+                        },
+                        controller: phone,
+                        inputFormatters: [number],
+                        keyboardType: TextInputType.phone,
+                        decoration: const InputDecoration(
+                          labelText: 'Phone',
+                          border: OutlineInputBorder(),
+                        )),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await Future.delayed(const Duration(seconds: 3));
+                        // Navigator.pop(context);
+                        if (_formKey.currentState!.validate()) {
+                          final data = RegisterAuth(
+                              email: email.text,
+                              name: nome.text,
+                              password: password.text,
+                              phone:
+                                  phone.text.replaceAll(RegExp(r'[^0-9]'), ''));
+                          await controller.registerUser(data: data);
+                        }
+                      },
+                      child: const Text('Register'),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        );
+          );
+        }
       }),
     );
   }
