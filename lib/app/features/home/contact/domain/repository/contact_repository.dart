@@ -4,7 +4,7 @@ import 'package:mensageiro/app/features/home/contact/domain/entity/contact.dart'
 
 abstract class IContactRepository {
   Future<Either<Failure, List<Contact>>> getContacts(String uid);
-  Future<Either<Failure, bool>> addContact(Contact contact);
-  Future<Either<Failure, bool>> deleteContact(Contact contact);
-  Future<Either<Failure, bool>> updateContact(Contact contact);
+  Future<Either<Failure, bool>> addContact(String id, Contact contact);
+  Future<Either<Failure, bool>> deleteContact(String id);
+  Future<Either<Failure, bool>> updateContact(String id, Contact contact);
 }

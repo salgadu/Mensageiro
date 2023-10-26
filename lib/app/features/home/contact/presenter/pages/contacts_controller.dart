@@ -13,7 +13,7 @@ abstract class ContactsControllerBase with Store {
 
   ContactsControllerBase(this.getContact, this.authStore) {
     when((_) => listContacts == null,
-        () async => await getContacts(id: '5599999999999'));
+        () async => await getContacts(id: authStore.user!.phoneNumber));
   }
   @observable
   bool isLoading = false;
@@ -35,6 +35,7 @@ abstract class ContactsControllerBase with Store {
     setLoadind(true);
     final result = await getContact(uid: id);
     result.fold((l) {
+      print(l.message);
       setError(true);
       setLoadind(false);
     }, (r) {

@@ -1,4 +1,5 @@
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:mensageiro/app/app_module.dart';
 import 'package:mensageiro/app/features/auth/login/domain/repository/login_repository.dart';
 import 'package:mensageiro/app/features/auth/login/domain/usecase/login_with_email_and_password.dart';
 import 'package:mensageiro/app/features/auth/login/external/datasource/firebase_repository_datasource_impl.dart';
@@ -17,7 +18,15 @@ class LoginModule extends Module {
   }
 
   @override
+  List<Module> get imports => [
+        CoreModule(),
+      ];
+
+  @override
   void routes(r) {
-    r.child('/', child: (context) => LoginPage());
+    r.child('/',
+        child: (context) => LoginPage(
+              controller: Modular.get(),
+            ));
   }
 }

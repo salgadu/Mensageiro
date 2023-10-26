@@ -16,21 +16,11 @@ class ContactRepositoryImpl implements IContactRepository {
       return Left(e);
     }
   }
-  
+
   @override
-  Future<Either<Failure, bool>> addContact(Contact contact) async {
+  Future<Either<Failure, bool>> addContact(String id, Contact contact) async {
     try {
-      final result = await datasource.addContact(contact);
-      return Right(result);
-    } on Failure catch (e) {
-      return Left(e);
-    }
-  }
-  
-    @override
-  Future<Either<Failure, bool>> deleteContact(Contact contact) async {
-    try {
-      final result = await datasource.deleteContact(contact);
+      final result = await datasource.addContact(id, contact);
       return Right(result);
     } on Failure catch (e) {
       return Left(e);
@@ -38,9 +28,20 @@ class ContactRepositoryImpl implements IContactRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> updateContact(Contact contact) async {
+  Future<Either<Failure, bool>> deleteContact(String id) async {
     try {
-      final result = await datasource.updateContact(contact);
+      final result = await datasource.deleteContact(id);
+      return Right(result);
+    } on Failure catch (e) {
+      return Left(e);
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> updateContact(
+      String id, Contact contact) async {
+    try {
+      final result = await datasource.updateContact(id, contact);
       return Right(result);
     } on Failure catch (e) {
       return Left(e);

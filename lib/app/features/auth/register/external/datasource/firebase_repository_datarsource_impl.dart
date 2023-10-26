@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mensageiro/app/core/errors/errors.dart';
@@ -21,11 +23,11 @@ class FireBaseRepositoryDataSource implements IAuthRegisterDatasource {
       if (e.code == 'weak-password') {
         throw ServerException(message: 'A senha fornecida é muito fraca');
       } else if (e.code == 'email-already-in-use') {
-        throw ServerException(message: 'Email já cadastrado!');
+        throw ServerException(message: 'Telefone já cadastrado!');
       }
     } catch (e) {
       throw ServerException(
-          message: 'Erro interno no aplicativo, tente novamente mais tarde');
+          message: 'Erro interno, tente novamente mais tarde');
     }
 
     final user = {
@@ -42,7 +44,6 @@ class FireBaseRepositoryDataSource implements IAuthRegisterDatasource {
     return LoggedUser(
       email: regoister.email,
       name: regoister.name,
-      uid: regoister.phone,
       phoneNumber: regoister.phone,
     );
   }

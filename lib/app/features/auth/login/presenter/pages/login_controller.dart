@@ -11,7 +11,7 @@ abstract class LoginControllerBase with Store {
   final ILoginWithEmailAndPassword login;
   final AuthStore authStore;
 
-  LoginControllerBase({required this.login, required this.authStore});
+  LoginControllerBase(this.login, this.authStore);
 
   @observable
   bool isLoading = false;
@@ -19,23 +19,29 @@ abstract class LoginControllerBase with Store {
   @observable
   bool isError = false;
 
+  @observable
+  String messageError = '';
+
   @action
   setLoadind(bool value) => isLoading = value;
 
   @action
   setError(bool value) => isError = value;
 
-  singIn({required String email, required String password}) async {
-    authStore.setAuthStatus(AuthStatus.Unauteticated);
-    final result = await login(email: email, password: password);
+  @action
+  setMessageError(String value) => messageError = value;
+
+  singIn({required String phone, required String password}) async {
     setLoadind(true);
     setError(false);
+    final result = await login(phone: phone, password: password);
     result.fold((error) {
+      setMessageError(error.message);
       setError(true);
     }, (user) {
+      setLoadind(false);
       authStore.setUser(user);
       authStore.setAuthStatus(AuthStatus.Authenticated);
     });
-    setLoadind(false);
   }
 }

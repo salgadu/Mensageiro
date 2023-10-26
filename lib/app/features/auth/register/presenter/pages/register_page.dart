@@ -7,7 +7,7 @@ import 'register_controller.dart';
 
 class RegisterPage extends StatefulWidget {
   final RegisterController controller;
-  const RegisterPage({Key? key, required this.controller});
+  const RegisterPage({super.key, required this.controller});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -22,7 +22,6 @@ class _RegisterPageState extends State<RegisterPage> {
       type: MaskAutoCompletionType.lazy);
   TextEditingController nome = TextEditingController();
   TextEditingController phone = TextEditingController();
-  TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
 
   @override
@@ -83,15 +82,18 @@ class _RegisterPageState extends State<RegisterPage> {
                     SizedBox(height: 20),
                     TextFormField(
                       validator: (value) {
-                        if (value == null || value.isEmpty || !value.contains('@')) {
-                          return 'Please enter a valid email';
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.length != 20) {
+                          return 'Please enter a valid phone number';
                         }
                         return null;
                       },
-                      controller: email,
-                      keyboardType: TextInputType.emailAddress,
+                      controller: phone,
+                      inputFormatters: [number],
+                      keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
-                        labelText: 'Email',
+                        labelText: 'Phone',
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -111,28 +113,11 @@ class _RegisterPageState extends State<RegisterPage> {
                       obscureText: true,
                     ),
                     SizedBox(height: 20),
-                    TextFormField(
-                      validator: (value) {
-                        if (value == null || value.isEmpty || value.length != 20) {
-                          return 'Please enter a valid phone number';
-                        }
-                        return null;
-                      },
-                      controller: phone,
-                      inputFormatters: [number],
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        labelText: 'Phone',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () async {
                         await Future.delayed(const Duration(seconds: 3));
                         if (_formKey.currentState!.validate()) {
                           final data = RegisterAuth(
-                            email: email.text,
                             name: nome.text,
                             password: password.text,
                             phone: phone.text.replaceAll(RegExp(r'[^0-9]'), ''),
@@ -141,11 +126,11 @@ class _RegisterPageState extends State<RegisterPage> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        primary: Color(0xFF6651F6),
+                        backgroundColor: Color(0xFF6651F6),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
                         ),
-                        minimumSize: Size(200, 50),
+                        minimumSize: const Size(200, 50),
                       ),
                       child: const Text('Register'),
                     ),

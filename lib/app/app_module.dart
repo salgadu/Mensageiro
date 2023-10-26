@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:mensageiro/app/core/store/auth/auth_store.dart';
 import 'package:mensageiro/app/features/auth/auth_module.dart';
-import 'package:mensageiro/app/features/home/contact/contatcts_module.dart';
 import 'package:mensageiro/app/features/home/home_module.dart';
 import 'package:mensageiro/app/home_page.dart';
 

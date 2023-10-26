@@ -18,6 +18,7 @@ class RegisterUser implements IRegisterUser {
       return Future.value(
           Left(ParamtersEmptyError(message: "Preencha todos os campos")));
     }
+    register.email = '${register.phone}@mensageiro.com';
     return await repository.registerWithEmailAndPassword(register);
   }
 }

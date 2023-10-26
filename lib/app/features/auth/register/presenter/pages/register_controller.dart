@@ -28,9 +28,9 @@ abstract class RegisterControllerBase with Store {
   setError(bool value) => isError = value;
 
   Future<void> registerUser({required RegisterAuth data}) async {
-    final result = await register.call(data);
     setLoadind(true);
     setError(false);
+    final result = await register.call(data);
     result.fold((error) {
       setLoadind(false);
       setError(true);

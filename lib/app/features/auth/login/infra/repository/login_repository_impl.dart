@@ -10,7 +10,7 @@ class LoginRepositoryImpl implements LoginRepository {
   LoginRepositoryImpl(this.datasource);
 
   @override
-  Future<Either<Failure, LoggedUser>> loginWithEmailAndPassword(
+  Future<Either<Failure, LoggedUser?>> loginWithEmailAndPassword(
       String email, String password) async {
     try {
       final user = await datasource.loginWithEmailAndPassword(

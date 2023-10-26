@@ -6,28 +6,35 @@ import 'package:mensageiro/app/features/home/contact/infra/model/contact_model.d
 
 class FirebaseContactDatasource implements IContactDatasource {
   final FirebaseFirestore firestore;
+  static const String COLLECTION = 'users';
 
   FirebaseContactDatasource(this.firestore);
 
   @override
   Future<List<ContactModel>> getContacts(String uid) async {
     try {
-      final contacts = await firestore.collection('user').doc(uid).get();
-      final contatcList = (contacts.data()?['contacts'] as List?) ?? [];
-      return contatcList.map((e) => ContactModel.fromJson(e.data())).toList();
+      final contacts = await firestore.collection(COLLECTION).doc(uid).get();
+      final result = contacts.data();
+      if (result == null) {
+        return [];
+      }
+      final contatcList = (result['contacts'] as List);
+      return contatcList.map((e) => ContactModel.fromJson(e)).toList();
     } catch (e) {
       throw ServerException(message: 'Falha ao buscar contatos');
     }
   }
 
   @override
-  Future<bool> addContact(Contact contact) async { // Aqui é Contact ou CotactModel?
+  Future<bool> addContact(String id, Contact contact) async {
+    // Aqui é Contact ou CotactModel?
     try {
-      final contacts = await firestore.collection('user').doc(contact.id).get();
+      final contacts =
+          await firestore.collection(COLLECTION).doc(contact.id).get();
       final contactList = (contacts.data()?['contacts'] as List?) ?? [];
       contactList.add(contact); // não sei se vai funcionar
       await firestore
-          .collection('user')
+          .collection(COLLECTION)
           .doc(contact.id)
           .update({'contacts': contactList});
       return true;
@@ -37,14 +44,14 @@ class FirebaseContactDatasource implements IContactDatasource {
   }
 
   @override
-  Future<bool> deleteContact(Contact contact) async {
+  Future<bool> deleteContact(String id) async {
     try {
-      final contacts = await firestore.collection('user').doc(contact.id).get();
+      final contacts = await firestore.collection(COLLECTION).doc(id).get();
       final contatcList = (contacts.data()?['contacts'] as List?) ?? [];
-      contatcList.removeWhere((element) => element['id'] == contact.id);
+      contatcList.removeWhere((element) => element['id'] == id);
       await firestore
           .collection('user')
-          .doc(contact.id)
+          .doc(id)
           .update({'contacts': contatcList});
       return true;
     } catch (e) {
@@ -53,9 +60,10 @@ class FirebaseContactDatasource implements IContactDatasource {
   }
 
   @override
-  Future<bool> updateContact(Contact contact) async {
+  Future<bool> updateContact(String id, Contact contact) async {
     try {
-      final contacts = await firestore.collection('user').doc(contact.id).get();
+      final contacts =
+          await firestore.collection(COLLECTION).doc(contact.id).get();
       final contatcList = (contacts.data()?['contacts'] as List?) ?? [];
       contatcList.removeWhere((element) => element['id'] == contact.id);
       contatcList.add(contact);
