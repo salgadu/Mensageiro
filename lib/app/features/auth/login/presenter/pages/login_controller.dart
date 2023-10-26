@@ -1,3 +1,4 @@
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:mensageiro/app/core/store/auth/auth_status.dart';
 import 'package:mensageiro/app/core/store/auth/auth_store.dart';
 import 'package:mensageiro/app/features/auth/login/domain/usecase/login_with_email_and_password.dart';
@@ -9,9 +10,8 @@ class LoginController = LoginControllerBase with _$LoginController;
 
 abstract class LoginControllerBase with Store {
   final ILoginWithEmailAndPassword login;
-  final AuthStore authStore;
-
-  LoginControllerBase(this.login, this.authStore);
+  AuthStore authStore = Modular.get<AuthStore>();
+  LoginControllerBase(this.login);
 
   @observable
   bool isLoading = false;

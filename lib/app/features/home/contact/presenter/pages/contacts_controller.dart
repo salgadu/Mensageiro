@@ -1,5 +1,7 @@
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:mensageiro/app/core/store/auth/auth_store.dart';
 import 'package:mensageiro/app/features/home/contact/domain/entity/contact.dart';
+import 'package:mensageiro/app/features/home/contact/domain/usecases/add_contactcs.dart';
 import 'package:mensageiro/app/features/home/contact/domain/usecases/get_contacts.dart';
 import 'package:mobx/mobx.dart';
 
@@ -9,9 +11,10 @@ class ContactsController = ContactsControllerBase with _$ContactsController;
 
 abstract class ContactsControllerBase with Store {
   final IGetContacts getContact;
-  final AuthStore authStore;
+  final IAddContact addContact;
+  final AuthStore authStore = Modular.get<AuthStore>();
 
-  ContactsControllerBase(this.getContact, this.authStore) {
+  ContactsControllerBase(this.getContact, this.addContact) {
     when((_) => listContacts == null,
         () async => await getContacts(id: authStore.user!.phoneNumber));
   }
@@ -44,9 +47,10 @@ abstract class ContactsControllerBase with Store {
     });
   }
 
-  Future<void> addContact(Contact contact, String newContactNumber) async {
+  Future<void> addContactF(String name, String phone) async {
+    final contact = Contact(id: phone, name: name, phone: phone, photo: '');
     setLoadind(true);
-    final result = await getContact(uid: contact.id);
+    final result = await addContact(authStore.user!.phoneNumber, contact);
     result.fold((l) {
       setError(true);
       setLoadind(false);

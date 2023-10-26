@@ -10,4 +10,7 @@ class Contact {
     required this.phone,
     this.photo,
   });
+
+  Map<String, dynamic> toMap() =>
+      {"id": id, "name": name, "phone": phone, "photo": photo};
 }

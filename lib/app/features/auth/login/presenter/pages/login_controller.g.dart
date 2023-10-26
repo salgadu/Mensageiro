@@ -41,6 +41,22 @@ mixin _$LoginController on LoginControllerBase, Store {
     });
   }
 
+  late final _$messageErrorAtom =
+      Atom(name: 'LoginControllerBase.messageError', context: context);
+
+  @override
+  String get messageError {
+    _$messageErrorAtom.reportRead();
+    return super.messageError;
+  }
+
+  @override
+  set messageError(String value) {
+    _$messageErrorAtom.reportWrite(value, super.messageError, () {
+      super.messageError = value;
+    });
+  }
+
   late final _$LoginControllerBaseActionController =
       ActionController(name: 'LoginControllerBase', context: context);
 
@@ -67,10 +83,22 @@ mixin _$LoginController on LoginControllerBase, Store {
   }
 
   @override
+  dynamic setMessageError(String value) {
+    final _$actionInfo = _$LoginControllerBaseActionController.startAction(
+        name: 'LoginControllerBase.setMessageError');
+    try {
+      return super.setMessageError(value);
+    } finally {
+      _$LoginControllerBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 isLoading: ${isLoading},
-isError: ${isError}
+isError: ${isError},
+messageError: ${messageError}
     ''';
   }
 }

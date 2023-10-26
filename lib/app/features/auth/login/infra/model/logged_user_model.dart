@@ -8,5 +8,5 @@ class LoggedUserModel extends LoggedUser {
   });
 
   factory LoggedUserModel.fromMap(Map<String, dynamic> map) => LoggedUserModel(
-      name: map['name'], email: map['email'], phoneNumber: map['phoneNumber']);
+      name: map['name'], email: map['email'], phoneNumber: map['phone']);
 }

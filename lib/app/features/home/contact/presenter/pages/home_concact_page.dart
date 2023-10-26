@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mensageiro/app/features/home/contact/domain/entity/contact.dart';
 import 'package:mensageiro/app/features/home/contact/presenter/pages/contacts_controller.dart';
 
 class HomeContactPage extends StatefulWidget {
@@ -30,18 +29,18 @@ class _HomeContactPageState extends State<HomeContactPage> {
         String newContactNumber = '';
 
         return AlertDialog(
-          title: Text('Add New Contact'),
+          title: const Text('Add New Contact'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                decoration: InputDecoration(labelText: 'Name'),
+                decoration: const InputDecoration(labelText: 'Name'),
                 onChanged: (value) {
                   newContactName = value;
                 },
               ),
               TextField(
-                decoration: InputDecoration(labelText: 'Phone Number'),
+                decoration: const InputDecoration(labelText: 'Phone Number'),
                 onChanged: (value) {
                   newContactNumber = value;
                 },
@@ -53,16 +52,14 @@ class _HomeContactPageState extends State<HomeContactPage> {
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                // Add the new contact using controller
-                controller.addContact(newContactName as Contact, newContactNumber);
-
+                controller.addContactF(newContactName, newContactNumber);
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('Add'),
+              child: const Text('Add'),
             ),
           ],
         );
@@ -73,15 +70,12 @@ class _HomeContactPageState extends State<HomeContactPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: ElevatedButton(
+        child: const Icon(Icons.add),
+        onPressed: () => _openAddContactDialog(context),
+      ),
       appBar: AppBar(
         title: const Text('Contatos'),
-        actions: [
-          // Add contact action button
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () => _openAddContactDialog(context),
-          ),
-        ],
       ),
       body: Observer(builder: (_) {
         if (controller.isLoading) {

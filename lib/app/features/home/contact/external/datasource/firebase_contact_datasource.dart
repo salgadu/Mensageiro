@@ -26,20 +26,14 @@ class FirebaseContactDatasource implements IContactDatasource {
   }
 
   @override
-  Future<bool> addContact(String id, Contact contact) async {
-    // Aqui é Contact ou CotactModel?
+  Future<List<Contact>> addContact(String id, Contact contact) async {
     try {
-      final contacts =
-          await firestore.collection(COLLECTION).doc(contact.id).get();
-      final contactList = (contacts.data()?['contacts'] as List?) ?? [];
-      contactList.add(contact); // não sei se vai funcionar
-      await firestore
-          .collection(COLLECTION)
-          .doc(contact.id)
-          .update({'contacts': contactList});
-      return true;
+      await firestore.collection(COLLECTION).doc(id).update({
+        'contacts': FieldValue.arrayUnion([contact.toMap()])
+      });
+      return getContacts(id);
     } catch (e) {
-      throw ServerException(message: 'Falha ao adicionar contato');
+      throw ServerException(message: 'Falha ao buscar contatos');
     }
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:mensageiro/app/app_module.dart';
+
+import 'package:mensageiro/app/core/core_module.dart';
 import 'package:mensageiro/app/features/auth/register/domain/repository/register_repository.dart';
 import 'package:mensageiro/app/features/auth/register/domain/usecases/auth_register.dart';
 import 'package:mensageiro/app/features/auth/register/external/datasource/firebase_repository_datarsource_impl.dart';
@@ -15,7 +16,6 @@ class RegisterModule extends Module {
     i.add<IRegisterRepository>(AuthRegisterRepository.new);
     i.add<IAuthRegisterDatasource>(FireBaseRepositoryDataSource.new);
     i.add(RegisterController.new);
-    
   }
 
   @override

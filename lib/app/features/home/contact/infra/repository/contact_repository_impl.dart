@@ -18,7 +18,8 @@ class ContactRepositoryImpl implements IContactRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> addContact(String id, Contact contact) async {
+  Future<Either<Failure, List<Contact>>> addContact(
+      String id, Contact contact) async {
     try {
       final result = await datasource.addContact(id, contact);
       return Right(result);
