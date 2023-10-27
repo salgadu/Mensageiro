@@ -48,6 +48,7 @@ dependencies:
   dialog_service: ^1.0.1
   flutter_native_splash: ^2.3.4
   google_fonts: ^6.1.0
+  file_picker: ^6.0.0
 
 dev_dependencies:
   flutter_test:

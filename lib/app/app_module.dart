@@ -15,5 +15,6 @@ class AppModule extends Module {
     r.child('/', child: (context) => const SplashScreen());
     r.module('/auth', module: AuthModule());
     r.module('/home', module: HomeModule());
+    r.module('/chat', module: ChatModule());
   }
 }
