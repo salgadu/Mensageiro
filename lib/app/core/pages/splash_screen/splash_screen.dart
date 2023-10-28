@@ -11,11 +11,11 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  AuthStore authStore = Modular.get<AuthStore>();
+  late AuthStore authStore = Modular.get<AuthStore>();
   @override
   void initState() {
+    authStore.authLogin().then((value) => value);
     super.initState();
-    authStore.authLogin();
   }
 
   @override

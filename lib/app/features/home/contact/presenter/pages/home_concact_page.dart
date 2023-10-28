@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_modular/flutter_modular.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mensageiro/app/core/widgets/drawer/custom_drawer.dart';
 import 'package:mensageiro/app/features/home/contact/presenter/pages/contacts_controller.dart';
 
 class HomeContactPage extends StatefulWidget {
@@ -70,6 +73,7 @@ class _HomeContactPageState extends State<HomeContactPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: CustomDrawer(),
       floatingActionButton: ElevatedButton(
         child: const Icon(Icons.add),
         onPressed: () => _openAddContactDialog(context),
@@ -92,11 +96,21 @@ class _HomeContactPageState extends State<HomeContactPage> {
             itemBuilder: (_, index) {
               final contact = controller.listContacts![index];
               return ListTile(
+                onTap: () => Modular.to.pushNamed('/home/chat/'),
                 title: Text(contact.name),
                 subtitle: Text(contact.phone),
                 leading: CircleAvatar(
-                  backgroundImage: contact.photo != null
-                      ? NetworkImage(contact.photo!)
+                  backgroundImage: contact.photo?.isEmpty ?? true
+                      ? null
+                      : NetworkImage(
+                          contact.photo!,
+                        ),
+                  child: contact.photo?.isEmpty ?? true
+                      ? Text(
+                          contact.name.substring(0, 1),
+                          style: GoogleFonts.spaceGrotesk()
+                              .copyWith(fontSize: 25, color: Colors.white),
+                        )
                       : null,
                 ),
               );

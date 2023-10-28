@@ -18,17 +18,18 @@ class _ChatPageState extends State<ChatPage> {
       home: Scaffold(
         appBar: AppBar(
           title: Column(children: <Widget>[
-            Expanded(
-              child: ListView.builder(
-                itemBuilder: (context, index) {
-                  return _buildContactItem(index);
-                },
-              ),
-            ),
+            // Expanded(
+            //   child: ListView.builder(
+            //     itemCount: 0,
+            //     itemBuilder: (context, index) {
+            //       return _buildContactItem(index);
+            //     },
+            //   ),
+            // ),
             _buildMessageComposer(context),
           ]),
         ),
-        body: Column(),
+        body: Container(),
       ),
     );
   }

@@ -15,6 +15,7 @@ abstract class AuthStoreBase with Store {
   final FirebaseFirestore firestore;
 
   AuthStoreBase(this.firebase, this.firestore) {
+    // when((_) => authStatus == null, () async => await authLogin());
     reaction((_) => authStatus, (_) {
       switch (authStatus) {
         case AuthStatus.Authenticated:
@@ -41,19 +42,31 @@ abstract class AuthStoreBase with Store {
   setAuthStatus(AuthStatus value) => authStatus = value;
 
   Future<void> authLogin() async {
-    firebase.authStateChanges().listen((User? user) async {
-      if (user != null) {
-        final phone = user.email!.split('@')[0];
-        final data = await firestore.collection('users').doc(phone).get();
+    try {
+      firebase.authStateChanges().listen((User? user) async {
+        if (user != null) {
+          final phone = user.email!.split('@')[0];
+          final data = await firestore.collection('users').doc(phone).get();
 
-        if (data.data() != null) {
-          setUser(LoggedUserModel.fromMap(data.data()!));
-          setAuthStatus(AuthStatus.Authenticated);
-          return;
+          if (data.data() != null) {
+            setUser(LoggedUserModel.fromMap(data.data()!));
+            setAuthStatus(AuthStatus.Authenticated);
+            return;
+          }
         }
-      }
-    });
+        setAuthStatus(AuthStatus.Unauteticated);
+        return;
+      });
+    } catch (e) {
+      await firebase.signOut();
+      setUser(null);
+      setAuthStatus(AuthStatus.Unauteticated);
+    }
+  }
+
+  Future<void> signOut() async {
+    await firebase.signOut();
+    setUser(null);
     setAuthStatus(AuthStatus.Unauteticated);
-    return;
   }
 }

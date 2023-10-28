@@ -2,6 +2,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:mensageiro/app/core/core_module.dart';
 import 'package:mensageiro/app/core/pages/splash_screen/splash_screen.dart';
 import 'package:mensageiro/app/features/auth/auth_module.dart';
+import 'package:mensageiro/app/features/home/chat/chat_module.dart';
 import 'package:mensageiro/app/features/home/home_module.dart';
 
 class AppModule extends Module {
