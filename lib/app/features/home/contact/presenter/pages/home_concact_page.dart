@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:mensageiro/app/core/widgets/drawer/custom_drawer.dart';
 import 'package:mensageiro/app/features/home/contact/presenter/pages/contacts_controller.dart';
 
@@ -16,6 +17,11 @@ class HomeContactPage extends StatefulWidget {
 
 class _HomeContactPageState extends State<HomeContactPage> {
   late ContactsController controller;
+
+  var number = MaskTextInputFormatter(
+      mask: '+55 (##) # ####-####',
+      filter: {"#": RegExp(r'[0-9]')},
+      type: MaskAutoCompletionType.lazy);
 
   @override
   void initState() {
@@ -43,7 +49,9 @@ class _HomeContactPageState extends State<HomeContactPage> {
                 },
               ),
               TextField(
+                keyboardType: TextInputType.number,
                 decoration: const InputDecoration(labelText: 'Phone Number'),
+                inputFormatters: [number],
                 onChanged: (value) {
                   newContactNumber = value;
                 },
@@ -59,7 +67,10 @@ class _HomeContactPageState extends State<HomeContactPage> {
             ),
             TextButton(
               onPressed: () {
-                controller.addContactF(newContactName, newContactNumber);
+                controller.addContactF(
+                  newContactName,
+                  newContactNumber.replaceAll(RegExp(r'[^0-9]'), ''),
+                );
                 Navigator.of(context).pop(); // Close the dialog
               },
               child: const Text('Add'),
@@ -96,7 +107,8 @@ class _HomeContactPageState extends State<HomeContactPage> {
             itemBuilder: (_, index) {
               final contact = controller.listContacts![index];
               return ListTile(
-                onTap: () => Modular.to.pushNamed('/home/chat/'),
+                onTap: () => Modular.to.pushNamed('/home/chat/',
+                    arguments: controller.listContacts![index]),
                 title: Text(contact.name),
                 subtitle: Text(contact.phone),
                 leading: CircleAvatar(

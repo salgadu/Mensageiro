@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mensageiro/app/core/utils/rash_id.dart';
 import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
 import 'package:mensageiro/app/features/home/chat/infra/datasource/i_chat_datasource.dart';
 import 'package:mensageiro/app/features/home/chat/infra/model/chat_model.dart';
@@ -9,20 +10,35 @@ class FirebaseDatasourceChats implements IChatDatasource {
   FirebaseDatasourceChats(this.firestore);
 
   @override
-  Future<List<ChatModel>> getChats(String id) async {
-    final chats = await firestore.collection('chats').get();
-    return chats.docs.map((e) => ChatModel.fromMap(e.data())).toList();
+  Stream<List<ChatModel>> getMessages(String id) {
+    return firestore
+        .collection('chats')
+        .doc(id.calculateHash())
+        .collection('messages')
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map((querySnapshot) {
+      return querySnapshot.docs.map((doc) {
+        return ChatModel.fromMap(doc.id, doc.data());
+      }).toList();
+    });
   }
 
   @override
-  Future<List<Chat>> sendChat(String id, Chat chat) async {
+  Future<void> sendChat(String id, Chat chat) async {
     try {
-      await firestore.collection('chats').doc(id).update({
-        'messages': FieldValue.arrayUnion([chat.toMap()])
+      await firestore
+          .collection('chats')
+          .doc(id.calculateHash())
+          .collection('messages')
+          .add({
+        'message': chat.message,
+        'timestamp': chat.timestamp,
+        'userId': chat.userId,
       });
-      return getChats(id);
     } catch (e) {
-      throw Exception();
-    }  
+      print("Erro ao adicionar mensagem: $e");
+      throw Exception("Erro ao adicionar mensagem");
+    }
   }
 }

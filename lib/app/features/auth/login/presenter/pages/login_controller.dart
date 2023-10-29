@@ -39,9 +39,11 @@ abstract class LoginControllerBase with Store {
       setMessageError(error.message);
       setError(true);
     }, (user) {
-      setLoadind(false);
-      authStore.setUser(user);
-      authStore.setAuthStatus(AuthStatus.Authenticated);
+      if (user != null) {
+        setLoadind(false);
+        authStore.setUser(user);
+        authStore.setAuthStatus(AuthStatus.Authenticated);
+      }
     });
   }
 }

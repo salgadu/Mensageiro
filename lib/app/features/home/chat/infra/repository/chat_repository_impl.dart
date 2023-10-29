@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:mensageiro/app/core/errors/errors.dart';
 import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
@@ -5,27 +7,36 @@ import 'package:mensageiro/app/features/home/chat/domain/repository/chat_reposit
 import 'package:mensageiro/app/features/home/chat/infra/datasource/i_chat_datasource.dart';
 
 class ChatRepositoryImpl implements IChatRepository {
-  final IChatDatasource dataSource;
+  final IChatDatasource _dataSource;
 
-  ChatRepositoryImpl(this.dataSource);
-  
+  ChatRepositoryImpl(this._dataSource);
+
   @override
-  Future<Either<Failure, List<Chat>>> getChats(String id) async {
-    try {
-      final chats = await dataSource.getChats(id);
-      return Right(chats);
-    }  on Failure catch (e) {
-      return Left(e);
-    }
+  Stream<List<Chat>> getMessages(String id) {
+    final controller = StreamController<List<Chat>>();
 
+    _dataSource.getMessages(id).listen(
+      (List<Chat> chats) {
+        controller.add(chats);
+      },
+      onError: (error) {
+        controller
+            .addError(ServerException(message: "Error fetching chats: $error"));
+      },
+      onDone: () {
+        controller.close();
+      },
+      cancelOnError: true,
+    );
+    return controller.stream;
   }
-  
+
   @override
-  Future<Either<Failure, List<Chat>>> sendChat(String id, Chat chat) async {
+  Future<Either<Failure, Unit>> sendMessage(String id, Chat chat) async {
     try {
-      final chats = await dataSource.sendChat(id, chat);
-      return Right(chats);
-    }  on Failure catch (e) {
+      await _dataSource.sendChat(id, chat);
+      return const Right(unit);
+    } on Failure catch (e) {
       return Left(e);
     }
   }

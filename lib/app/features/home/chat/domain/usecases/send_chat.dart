@@ -4,14 +4,14 @@ import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
 import 'package:mensageiro/app/features/home/chat/domain/repository/chat_repository.dart';
 
 abstract class ISendChat {
-  Future<Either<Failure, List<Chat>>> call(String id, Chat chat);
+  Future<Either<Failure, Unit>> call(String id, Chat chat);
 }
 
 class SendChatImpl implements ISendChat {
   final IChatRepository repository;
   SendChatImpl(this.repository);
   @override
-  Future<Either<Failure, List<Chat>>> call(String id, Chat chat) {
-    return repository.sendChat(id, chat);
+  Future<Either<Failure, Unit>> call(String id, Chat chat) async {
+    return await repository.sendMessage(id, chat);
   }
 }

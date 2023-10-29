@@ -18,7 +18,7 @@ class FireBaseRepositoryDataSourceImpl implements ILoginDatasource {
       final credentials = await auth.signInWithEmailAndPassword(
           email: email, password: password);
       if (credentials.user == null) {
-        return null;
+        throw ServerException(message: 'Usuário não registrado');
       }
 
       final phone = credentials.user!.email!.split('@')[0];
@@ -29,7 +29,9 @@ class FireBaseRepositoryDataSourceImpl implements ILoginDatasource {
         return LoggedUserModel.fromMap(data.data()!);
       }
 
-      return null;
+      throw ServerException(
+          message:
+              'Não foi possível carregar os dados, tente novamente mais tarde');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         throw ServerException(message: 'Telefone ou senha inválido');
@@ -40,6 +42,5 @@ class FireBaseRepositoryDataSourceImpl implements ILoginDatasource {
       throw ServerException(
           message: 'Erro Innterno, por favor tente novamente mais tarde!');
     }
-    return null;
   }
 }

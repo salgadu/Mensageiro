@@ -59,14 +59,15 @@ abstract class AuthStoreBase with Store {
       });
     } catch (e) {
       await firebase.signOut();
-      setUser(null);
       setAuthStatus(AuthStatus.Unauteticated);
+      setUser(null);
+      return;
     }
   }
 
   Future<void> signOut() async {
     await firebase.signOut();
-    setUser(null);
     setAuthStatus(AuthStatus.Unauteticated);
+    setUser(null);
   }
 }

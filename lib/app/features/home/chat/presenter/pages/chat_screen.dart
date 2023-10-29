@@ -1,79 +1,113 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:mensageiro/app/features/home/contact/presenter/pages/contacts_controller.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
+import 'package:mensageiro/app/features/home/chat/presenter/pages/chat_controller.dart';
+import 'package:mensageiro/app/features/home/contact/domain/entity/contact.dart';
 
 class ChatPage extends StatefulWidget {
-  final ContactsController controller;
+  final ChatController controller;
+  final Contact contact;
 
-  const ChatPage({Key? key, required this.controller}) : super(key: key);
+  const ChatPage({Key? key, required this.controller, required this.contact})
+      : super(key: key);
 
   @override
   _ChatPageState createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
+  final TextEditingController _messageController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Column(children: <Widget>[
-            // Expanded(
-            //   child: ListView.builder(
-            //     itemCount: 0,
-            //     itemBuilder: (context, index) {
-            //       return _buildContactItem(index);
-            //     },
-            //   ),
-            // ),
-            _buildMessageComposer(context),
-          ]),
-        ),
-        body: Container(),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.contact.name),
+      ),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: StreamBuilder<List<Chat>>(
+              stream: widget.controller.messages(widget.contact.id),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return _buildMessagesList(snapshot.data!);
+                } else if (snapshot.hasError) {
+                  return Text("Error: ${snapshot.error}");
+                } else {
+                  return const CircularProgressIndicator();
+                }
+              },
+            ),
+          ),
+          _buildMessageComposer(context),
+        ],
       ),
     );
   }
 
-  Widget _buildContactItem(int index) {
-    final contact = widget.controller.listContacts![index];
-    return ListTile(
-      title: Text(contact.name),
-      subtitle: Text(contact.phone),
-      leading: CircleAvatar(
-        backgroundImage:
-            contact.photo != null ? NetworkImage(contact.photo!) : null,
-      ),
+  Widget _buildMessagesList(List<Chat> messages) {
+    return ListView.builder(
+      reverse: true,
+      itemCount: messages.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(
+            messages[index].message,
+            textAlign: messages[index].userId == widget.contact.id
+                ? TextAlign.left
+                : TextAlign.right,
+          ),
+        );
+      },
     );
   }
 
   Widget _buildMessageComposer(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8.0),
       child: Row(
         children: <Widget>[
           IconButton(
-            icon: Icon(Icons.attach_file),
+            icon: const Icon(Icons.attach_file),
             onPressed: () {
               _showAttachmentOptions(context);
             },
           ),
           Expanded(
             child: TextField(
-              decoration: InputDecoration(hintText: 'Digite uma mensagem...'),
-              onSubmitted: (text) {},
+              controller: _messageController,
+              decoration:
+                  const InputDecoration(hintText: 'Digite uma mensagem...'),
+              onSubmitted: _sendMessage,
             ),
           ),
           IconButton(
-            icon: Icon(Icons.send),
-            onPressed: () {},
+            icon: const Icon(Icons.send),
+            onPressed: () {
+              _sendMessage(_messageController.text);
+            },
           ),
           IconButton(
-            icon: Icon(Icons.keyboard_voice),
+            icon: const Icon(Icons.keyboard_voice),
             onPressed: () {},
           ),
         ],
       ),
     );
+  }
+
+  void _sendMessage(String message) {
+    // Use a função atual para gerar um ID único e substitua 'userId' pelo ID do usuário atual
+    widget.controller.sendMessage(
+      widget.contact.id,
+      Chat(
+          message: message,
+          timestamp: DateTime.now().toString(),
+          typeMessage: 'M'),
+    );
+    _messageController.clear(); // Limpa o campo de mensagem após o envio
   }
 
   void _showAttachmentOptions(BuildContext context) {
@@ -86,7 +120,7 @@ class _ChatPageState extends State<ChatPage> {
             children: <Widget>[
               ListTile(
                 leading: Icon(Icons.photo_camera),
-                title: Text('Fotos e Videos'),
+                title: Text('Fotos e Vídeos'),
                 onTap: () {
                   _pickMedia(context);
                 },

@@ -11,10 +11,10 @@ class HomePage extends StatelessWidget {
         child: Column(
           children: [
             ElevatedButton(
-                onPressed: () => Modular.to.navigate('/auth/login/'),
+                onPressed: () => Modular.to.pushNamed('/auth/login/'),
                 child: const Text('Login')),
             ElevatedButton(
-              onPressed: () => Modular.to.navigate('/auth/register/'),
+              onPressed: () => Modular.to.pushNamed('/auth/register/'),
               child: const Text('register'),
             )
           ],

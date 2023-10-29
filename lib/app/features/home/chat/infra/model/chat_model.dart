@@ -6,15 +6,16 @@ class ChatModel extends Chat {
     required super.message,
     required super.timestamp,
     required super.userId,
+    required super.typeMessage,
   });
 
-  factory ChatModel.fromMap(Map<String, dynamic> map) {
+  factory ChatModel.fromMap(String id, Map<String, dynamic> map) {
     return ChatModel(
-      id: map['id'],
-      message: map['message'],
-      timestamp: map['timestamp'],
-      userId: map['userId'],
-    );
+        id: id,
+        message: map['message'],
+        timestamp: map['timestamp'].toString(),
+        userId: map['userId'],
+        typeMessage: map['typeMessage'] ?? '');
   }
 
   Map<String, dynamic> toMap() {
@@ -23,6 +24,7 @@ class ChatModel extends Chat {
       'message': message,
       'timestamp': timestamp,
       'userId': userId,
+      'typeMessage': typeMessage
     };
   }
 }
