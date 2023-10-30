@@ -5,5 +5,5 @@ import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
 abstract class IChatRepository {
   Stream<List<Chat>> getMessages(String id);
   Future<Either<Failure, Unit>> sendMessage(String id, Chat chat);
-  // Future<Either<Failure, bool>> deleteChat(String id);
+  Future<Either<Failure, Unit>> sendAudio(String id, Chat chat);
 }

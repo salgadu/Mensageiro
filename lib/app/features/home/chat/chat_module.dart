@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:mensageiro/app/core/core_module.dart';

@@ -40,4 +40,14 @@ class ChatRepositoryImpl implements IChatRepository {
       return Left(e);
     }
   }
+
+  @override
+  Future<Either<Failure, Unit>> sendAudio(String id, Chat chat) async {
+    try {
+      await _dataSource.sendAudio(id, chat);
+      return const Right(unit);
+    } on Failure catch (e) {
+      return Left(e);
+    }
+  }
 }

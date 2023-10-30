@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:mensageiro/app/core/store/auth/auth_store.dart';
@@ -14,12 +13,12 @@ class ChatController = ChatControllerBase with _$ChatController;
 abstract class ChatControllerBase with Store {
   final IGetMessage getMessage;
   final ISendChat sendMessages;
+  final ISendChat sendAudios;
   final AuthStore _authStore = Modular.get<AuthStore>();
 
-  ChatControllerBase(this.sendMessages, this.getMessage);
+  ChatControllerBase(this.sendMessages, this.getMessage, this.sendAudios);
 
   Future sendMessage(String id, Chat message) async {
-    //TODO Tratar esse parametro de envio de mensagens
     message.userId = _authStore.user!.phoneNumber;
     final idChat = '$id${_authStore.user!.phoneNumber}';
     var result = await sendMessages(idChat, message);
@@ -29,5 +28,12 @@ abstract class ChatControllerBase with Store {
   Stream<List<Chat>> messages(String id) {
     final idChat = '$id${_authStore.user!.phoneNumber}';
     return getMessage(idChat);
+  }
+
+  Future sendAudio(String id, Chat message ) async {
+    message.userId = _authStore.user!.phoneNumber;
+    final idChat = '$id${_authStore.user!.phoneNumber}';
+    var result = await sendAudios(idChat, message);
+    result.fold((l) {}, (r) {});
   }
 }

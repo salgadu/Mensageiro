@@ -1,6 +1,8 @@
+import 'dart:typed_data';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
 import 'package:mensageiro/app/features/home/chat/presenter/pages/chat_controller.dart';
 import 'package:mensageiro/app/features/home/contact/domain/entity/contact.dart';
@@ -90,8 +92,10 @@ class _ChatPageState extends State<ChatPage> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.keyboard_voice),
-            onPressed: () {},
+            icon: const Icon(Icons.mic),
+            onPressed: () {
+              _sendAudio();
+            },
           ),
         ],
       ),
@@ -99,16 +103,41 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _sendMessage(String message) {
-    // Use a função atual para gerar um ID único e substitua 'userId' pelo ID do usuário atual
     widget.controller.sendMessage(
       widget.contact.id,
       Chat(
-          message: message,
-          timestamp: DateTime.now().toString(),
-          typeMessage: 'M'),
+        message: message,
+        timestamp: DateTime.now().toString(),
+        typeMessage: 'M',
+      ),
     );
     _messageController.clear(); // Limpa o campo de mensagem após o envio
   }
+
+ Future<void> _sendAudio() async {
+  FilePickerResult? result = await FilePicker.platform.pickFiles(
+    type: FileType.audio,
+    allowMultiple: false,
+  );
+
+  if (result != null && result.files.isNotEmpty) {
+    final audioFile = result.files.first;
+    try {
+      final audioData = audioFile.bytes!;
+      final chat = Chat(
+        message: audioFile.name,
+        timestamp: DateTime.now().toString(),
+        userId: widget.contact.id,
+        typeMessage: 'A',
+      );
+      widget.controller.sendAudio(audioData as String, chat);
+    } catch (error) {
+      print('Error uploading audio: $error');
+    }
+  }
+  Navigator.pop(context);
+}
+
 
   void _showAttachmentOptions(BuildContext context) {
     showModalBottomSheet(
@@ -165,3 +194,4 @@ class _ChatPageState extends State<ChatPage> {
     Navigator.pop(context);
   }
 }
+
