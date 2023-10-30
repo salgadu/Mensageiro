@@ -7,6 +7,7 @@ class ChatModel extends Chat {
     required super.timestamp,
     required super.userId,
     required super.typeMessage,
+  
   });
 
   factory ChatModel.fromMap(String id, Map<String, dynamic> map) {
