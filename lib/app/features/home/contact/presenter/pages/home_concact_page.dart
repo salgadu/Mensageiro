@@ -8,8 +8,10 @@ import 'package:mensageiro/app/features/home/contact/presenter/pages/contacts_co
 
 class HomeContactPage extends StatefulWidget {
   final ContactsController controller;
+  final String id;
 
-  const HomeContactPage({Key? key, required this.controller}) : super(key: key);
+  const HomeContactPage({Key? key, required this.controller, required this.id})
+      : super(key: key);
 
   @override
   _HomeContactPageState createState() => _HomeContactPageState();
@@ -27,6 +29,14 @@ class _HomeContactPageState extends State<HomeContactPage> {
   void initState() {
     super.initState();
     controller = widget.controller;
+  }
+
+  loadContact() async {
+    if (widget.id.isNotEmpty && !controller.isLoading) {
+      int numero = int.parse(widget.id);
+      Modular.to.pushNamed('/home/chat/',
+          arguments: controller.listContacts![numero]);
+    }
   }
 
   // Function to open the add contact dialog
@@ -102,6 +112,7 @@ class _HomeContactPageState extends State<HomeContactPage> {
             child: Text('Erro ao carregar contatos'),
           );
         } else {
+          loadContact();
           return ListView.builder(
             itemCount: controller.listContacts?.length ?? 0,
             itemBuilder: (_, index) {

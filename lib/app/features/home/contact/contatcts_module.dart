@@ -26,7 +26,8 @@ class ContatctsModule extends Module {
 
   @override
   void routes(r) {
-    r.child('/',
-        child: (context) => HomeContactPage(controller: Modular.get()));
+    r.child('/:id',
+        child: (context) => HomeContactPage(
+            controller: Modular.get(), id: r.args.params['id'] ?? ''));
   }
 }
