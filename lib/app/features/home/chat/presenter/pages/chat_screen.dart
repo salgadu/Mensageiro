@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
 import 'package:mensageiro/app/features/home/chat/presenter/pages/chat_controller.dart';
 import 'package:mensageiro/app/features/home/contact/domain/entity/contact.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class ChatPage extends StatefulWidget {
   final ChatController controller;
@@ -16,6 +17,7 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  final player = AudioPlayer();
   final TextEditingController _messageController = TextEditingController();
 
   @override
@@ -51,6 +53,9 @@ class _ChatPageState extends State<ChatPage> {
       reverse: true,
       itemCount: messages.length,
       itemBuilder: (context, index) {
+        if (messages[index].typeMessage == 'a') {
+          return Text(messages[index].message);
+        }
         return ListTile(
           title: Text(
             messages[index].message,
@@ -111,30 +116,31 @@ class _ChatPageState extends State<ChatPage> {
     _messageController.clear(); // Limpa o campo de mensagem após o envio
   }
 
- Future<void> _sendAudio() async {
-  FilePickerResult? result = await FilePicker.platform.pickFiles(
-    type: FileType.audio,
-    allowMultiple: false,
-  );
+  Future<void> _sendAudio() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.audio,
+      allowMultiple: false,
+    );
 
-  if (result != null && result.files.isNotEmpty) {
-    final audioFile = result.files.first;
-    try {
-      final audioData = audioFile.bytes!;
-      final chat = Chat(
-        message: audioFile.name,
-        timestamp: DateTime.now().toString(),
-        userId: widget.contact.id,
-        typeMessage: 'A',
-      );
-      widget.controller.sendAudio(audioData as String, chat);
-    } catch (error) {
-      print('Error uploading audio: $error');
+    if (result != null && result.files.isNotEmpty) {
+      final audioFile = result.files.first;
+      try {
+        final audioData = audioFile.bytes;
+        if (audioData == null) {
+          print('Audio não gravado');
+          return;
+        }
+        final chat = Chat(
+          message: audioFile.name,
+          timestamp: DateTime.now().toString(),
+          typeMessage: 'A',
+        );
+        widget.controller.sendAudio(widget.contact.id, chat, audioData);
+      } catch (error) {
+        print('Error uploading audio: $error');
+      }
     }
   }
-  Navigator.pop(context);
-}
-
 
   void _showAttachmentOptions(BuildContext context) {
     showModalBottomSheet(
@@ -191,4 +197,3 @@ class _ChatPageState extends State<ChatPage> {
     Navigator.pop(context);
   }
 }
-

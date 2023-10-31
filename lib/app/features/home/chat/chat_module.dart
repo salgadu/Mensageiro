@@ -1,8 +1,8 @@
-
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:mensageiro/app/core/core_module.dart';
 import 'package:mensageiro/app/features/home/chat/domain/repository/chat_repository.dart';
 import 'package:mensageiro/app/features/home/chat/domain/usecases/get_message.dart';
+import 'package:mensageiro/app/features/home/chat/domain/usecases/send_audio.dart';
 import 'package:mensageiro/app/features/home/chat/domain/usecases/send_chat.dart';
 import 'package:mensageiro/app/features/home/chat/external/datasource/firebase_datsource_chats.dart';
 import 'package:mensageiro/app/features/home/chat/infra/datasource/i_chat_datasource.dart';
@@ -18,6 +18,7 @@ class ChatModule extends Module {
     i.add<IChatRepository>(ChatRepositoryImpl.new);
     i.add<IChatDatasource>(FirebaseDatasourceChats.new);
     i.add(ChatController.new);
+    i.add<ISendAudio>(SendAudioImpl.new);
   }
 
   @override

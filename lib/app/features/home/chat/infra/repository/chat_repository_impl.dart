@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 import 'package:mensageiro/app/core/errors/errors.dart';
@@ -42,9 +43,10 @@ class ChatRepositoryImpl implements IChatRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> sendAudio(String id, Chat chat) async {
+  Future<Either<Failure, Unit>> sendAudio(
+      String id, Chat chat, Uint8List audio) async {
     try {
-      await _dataSource.sendAudio(id, chat);
+      await _dataSource.sendAudio(id, chat, audio);
       return const Right(unit);
     } on Failure catch (e) {
       return Left(e);

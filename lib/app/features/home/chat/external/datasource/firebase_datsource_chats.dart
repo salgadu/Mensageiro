@@ -47,26 +47,15 @@ class FirebaseDatasourceChats implements IChatDatasource {
   }
 
   @override
-  Future<void> sendAudio(String audioData, Chat chat) async {
+  Future<void> sendAudio(String id, Chat chat, Uint8List audio) async {
     try {
-      final audioRef = firestore
-          .collection('chats')
-          .doc(chat.id?.calculateHash())
-          .collection('audio')
-          .doc();
       final audioStorageRef =
-          storage.ref().child('audio_messages/${audioRef.id}.mp3');
-
-      await audioRef.set({
-        'message': chat.message,
-        'timestamp': chat.timestamp,
-        'userId': chat.userId,
-      });
-
-      await audioStorageRef.putData(audioData as Uint8List);
+          storage.ref().child('${chat.userId}/audio/${chat.message}.mp3');
+      await audioStorageRef.putData(audio);
       final downloadUrl = await audioStorageRef.getDownloadURL();
-
-      await audioRef.update({'audio': downloadUrl});
+      //Adiciono a url na message do audio
+      chat.message = downloadUrl;
+      return await sendChat(id, chat);
     } catch (error) {
       print("Error uploading audio file: $error");
       throw ChatException("Error adding audio: $error");
