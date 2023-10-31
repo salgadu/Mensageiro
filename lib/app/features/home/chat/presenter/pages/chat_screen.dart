@@ -53,18 +53,33 @@ class _ChatPageState extends State<ChatPage> {
       reverse: true,
       itemCount: messages.length,
       itemBuilder: (context, index) {
-        if (messages[index].typeMessage == 'a') {
-          return Text(messages[index].message);
+        if (messages[index].typeMessage == 'A') {
+          return _buildAudioMessage(messages[index].message);
         }
-        return ListTile(
-          title: Text(
-            messages[index].message,
-            textAlign: messages[index].userId == widget.contact.id
-                ? TextAlign.left
-                : TextAlign.right,
-          ),
-        );
+        return _buildTextMessage(messages[index]);
       },
+    );
+  }
+
+  Widget _buildAudioMessage(String audioPath) {
+    return ListTile(
+      title: InkWell(
+        child: Text("Audio Message"),
+        onTap: () {
+          _playAudio(audioPath);
+        },
+      ),
+    );
+  }
+
+  Widget _buildTextMessage(Chat message) {
+    return ListTile(
+      title: Text(
+        message.message,
+        textAlign: message.userId == widget.contact.id
+            ? TextAlign.left
+            : TextAlign.right,
+      ),
     );
   }
 
@@ -113,7 +128,7 @@ class _ChatPageState extends State<ChatPage> {
         typeMessage: 'M',
       ),
     );
-    _messageController.clear(); // Limpa o campo de mensagem após o envio
+    _messageController.clear();
   }
 
   Future<void> _sendAudio() async {
@@ -127,19 +142,24 @@ class _ChatPageState extends State<ChatPage> {
       try {
         final audioData = audioFile.bytes;
         if (audioData == null) {
-          print('Audio não gravado');
+          print('Audio not recorded');
           return;
         }
         final chat = Chat(
           message: audioFile.name,
           timestamp: DateTime.now().toString(),
           typeMessage: 'A',
+          audioUrl: audioFile.path,
         );
         widget.controller.sendAudio(widget.contact.id, chat, audioData);
       } catch (error) {
         print('Error uploading audio: $error');
       }
     }
+  }
+
+  void _playAudio(String audioUrl) async{
+    await player.play(audioUrl as Source);
   }
 
   void _showAttachmentOptions(BuildContext context) {
@@ -150,24 +170,19 @@ class _ChatPageState extends State<ChatPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              ListTile(
-                leading: Icon(Icons.photo_camera),
-                title: Text('Fotos e Vídeos'),
-                onTap: () {
+              _buildAttachmentOption(
+                Icon(Icons.photo_camera),
+                'Fotos e Vídeos',
+                () {
                   _pickMedia(context);
                 },
               ),
-              ListTile(
-                leading: Icon(Icons.insert_drive_file),
-                title: Text('Documento'),
-                onTap: () {
+              _buildAttachmentOption(
+                Icon(Icons.insert_drive_file),
+                'Documento',
+                () {
                   _pickDocument(context);
                 },
-              ),
-              ListTile(
-                leading: Icon(Icons.contacts),
-                title: Text('Contato'),
-                onTap: () {},
               ),
             ],
           ),
@@ -176,8 +191,15 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  ListTile _buildAttachmentOption(Icon icon, String title, VoidCallback onTap) {
+    return ListTile(
+      leading: icon,
+      title: Text(title),
+      onTap: onTap,
+    );
+  }
+
   Future<void> _pickMedia(BuildContext context) async {
-    // Lógica para escolher fotos e vídeos aqui
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.media,
       allowMultiple: false,
@@ -187,7 +209,6 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _pickDocument(BuildContext context) async {
-    // Lógica para escolher documentos aqui
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'doc', 'docx'],

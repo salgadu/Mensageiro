@@ -4,6 +4,7 @@ class Chat {
   final String timestamp;
   String userId;
   final String typeMessage;
+  final String? audioUrl;
 
   Chat({
     this.id,
@@ -11,6 +12,7 @@ class Chat {
     required this.timestamp,
     this.userId = '',
     required this.typeMessage,
+    this.audioUrl = '',
   });
 
   Map<String, dynamic> toMap() => {
