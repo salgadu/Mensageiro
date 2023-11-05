@@ -52,4 +52,37 @@ class ChatRepositoryImpl implements IChatRepository {
       return Left(e);
     }
   }
+
+  @override
+  Future<Either<Failure, Unit>> sendDocument(
+      String id, Chat chat, Uint8List document) async {
+    try {
+      await _dataSource.sendDocument(id, chat, document);
+      return const Right(unit);
+    } on Failure catch (e) {
+      return Left(e);
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> sendImage(
+      String id, Chat chat, Uint8List image) async {
+    try {
+      await _dataSource.sendImage(id, chat, image);
+      return const Right(unit);
+    } on Failure catch (e) {
+      return Left(e);
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> sendVideo(
+      String id, Chat chat, Uint8List video) async {
+    try {
+      await _dataSource.sendVideo(id, chat, video);
+      return const Right(unit);
+    } on Failure catch (e) {
+      return Left(e);
+    }
+  }
 }

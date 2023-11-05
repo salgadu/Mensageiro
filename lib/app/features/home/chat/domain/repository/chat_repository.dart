@@ -9,4 +9,10 @@ abstract class IChatRepository {
   Future<Either<Failure, Unit>> sendMessage(String id, Chat chat);
   Future<Either<Failure, Unit>> sendAudio(
       String id, Chat chat, Uint8List audio);
+  Future<Either<Failure, Unit>> sendImage(
+      String id, Chat chat, Uint8List image);
+  Future<Either<Failure, Unit>> sendVideo(
+      String id, Chat chat, Uint8List video);
+  Future<Either<Failure, Unit>> sendDocument(
+      String id, Chat chat, Uint8List document);
 }

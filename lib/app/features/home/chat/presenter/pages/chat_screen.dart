@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:mensageiro/app/core/infra/call/signalling_service.dart';
 import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
 import 'package:mensageiro/app/features/home/chat/presenter/pages/chat_controller.dart';
 import 'package:mensageiro/app/features/home/contact/domain/entity/contact.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:video_player/video_player.dart';
 
 class ChatPage extends StatefulWidget {
   final ChatController controller;
@@ -19,12 +21,28 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final player = AudioPlayer();
   final TextEditingController _messageController = TextEditingController();
+  late VideoPlayerController _videoPlayerController;
+
+  @override
+  void initState() {
+    super.initState();
+    // ignore: deprecated_member_use
+    _videoPlayerController = VideoPlayerController.network('');
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.contact.name),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.call),
+            onPressed: () {
+              _startVideoCall();
+            },
+          ),
+        ],
       ),
       body: Column(
         children: <Widget>[
@@ -53,20 +71,27 @@ class _ChatPageState extends State<ChatPage> {
       reverse: true,
       itemCount: messages.length,
       itemBuilder: (context, index) {
-        if (messages[index].typeMessage == 'A') {
-          return _buildAudioMessage(messages[index].message);
+        final message = messages[index];
+        if (message.typeMessage == 'A') {
+          return _buildAudioMessage(message);
+        } else if (message.typeMessage == 'P') {
+          return _buildPhotoMessage(message);
+        } else if (message.typeMessage == 'V') {
+          return _buildVideoMessage(message);
+        } else if (message.typeMessage == 'D') {
+          return _buildDocumentMessage(message);
         }
-        return _buildTextMessage(messages[index]);
+        return _buildTextMessage(message);
       },
     );
   }
 
-  Widget _buildAudioMessage(String audioPath) {
+  Widget _buildAudioMessage(Chat message) {
     return ListTile(
       title: InkWell(
         child: Text("Audio Message"),
         onTap: () {
-          _playAudio(audioPath);
+          _playAudio(message.message);
         },
       ),
     );
@@ -80,6 +105,32 @@ class _ChatPageState extends State<ChatPage> {
             ? TextAlign.left
             : TextAlign.right,
       ),
+    );
+  }
+
+  Widget _buildPhotoMessage(Chat message) {
+    return ListTile(
+      title: Image.asset(
+        message.message, // Replace with the actual asset path
+        width: 100,
+        height: 100,
+      ),
+    );
+  }
+
+  Widget _buildVideoMessage(Chat message) {
+    return ListTile(
+      title: AspectRatio(
+        aspectRatio: 16 /
+            9, // You can adjust the aspect ratio based on your video dimensions
+        child: VideoPlayer(_videoPlayerController),
+      ),
+    );
+  }
+
+  Widget _buildDocumentMessage(Chat message) {
+    return ListTile(
+      title: Text("Document: ${message.message}"),
     );
   }
 
@@ -119,6 +170,14 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  void _startVideoCall() {
+    final signallingService = SignallingService.instance;
+    signallingService.socket?.emit('startVideosCall', {
+      'callerId': widget.contact.id,
+      'calleeId': widget.contact.id,
+    });
+  }
+
   void _sendMessage(String message) {
     widget.controller.sendMessage(
       widget.contact.id,
@@ -149,7 +208,7 @@ class _ChatPageState extends State<ChatPage> {
           message: audioFile.name,
           timestamp: DateTime.now().toString(),
           typeMessage: 'A',
-          audioUrl: audioFile.path,
+          pathUrl: audioFile.path,
         );
         widget.controller.sendAudio(widget.contact.id, chat, audioData);
       } catch (error) {
@@ -158,7 +217,7 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _playAudio(String audioUrl) async{
+  void _playAudio(String audioUrl) async {
     await player.play(audioUrl as Source);
   }
 
@@ -172,16 +231,23 @@ class _ChatPageState extends State<ChatPage> {
             children: <Widget>[
               _buildAttachmentOption(
                 Icon(Icons.photo_camera),
-                'Fotos e Vídeos',
+                'Fotos',
                 () {
-                  _pickMedia(context);
+                  _sendPhoto();
+                },
+              ),
+              _buildAttachmentOption(
+                Icon(Icons.videocam),
+                'Vídeos',
+                () {
+                  _sendVideo();
                 },
               ),
               _buildAttachmentOption(
                 Icon(Icons.insert_drive_file),
-                'Documento',
+                'Documentos',
                 () {
-                  _pickDocument(context);
+                  _sendDocuments();
                 },
               ),
             ],
@@ -199,22 +265,91 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Future<void> _pickMedia(BuildContext context) async {
+  Future<void> _sendPhoto() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.media,
+      type: FileType.image,
       allowMultiple: false,
     );
-    if (result != null) {}
-    Navigator.pop(context);
+
+    if (result != null && result.files.isNotEmpty) {
+      final photoFile = result.files.first;
+      try {
+        final photoData = photoFile.bytes;
+        if (photoData == null) {
+          print('Photo not selected');
+          return;
+        }
+        final chat = Chat(
+          message: photoFile.name,
+          timestamp: DateTime.now().toString(),
+          typeMessage: 'P',
+          pathUrl: photoFile.path,
+        );
+        widget.controller.sendImage(widget.contact.id, chat, photoData);
+      } catch (error) {
+        print('Error uploading photo: $error');
+      }
+    }
   }
 
-  Future<void> _pickDocument(BuildContext context) async {
+  Future<void> _sendVideo() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'doc', 'docx'],
+      type: FileType.video,
       allowMultiple: false,
     );
-    if (result != null) {}
-    Navigator.pop(context);
+
+    if (result != null && result.files.isNotEmpty) {
+      final videoFile = result.files.first;
+      try {
+        final videoData = videoFile.bytes;
+        if (videoData == null) {
+          print('Video not selected');
+          return;
+        }
+        final chat = Chat(
+          message: videoFile.name,
+          timestamp: DateTime.now().toString(),
+          typeMessage: 'V',
+          pathUrl: videoFile.path,
+        );
+        widget.controller.sendVideo(widget.contact.id, chat, videoData);
+      } catch (error) {
+        print('Error uploading video: $error');
+      }
+    }
+  }
+
+  Future<void> _sendDocuments() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowMultiple: false,
+      allowedExtensions: ['pdf'],
+    );
+
+    if (result != null && result.files.isNotEmpty) {
+      final documentFile = result.files.first;
+      try {
+        final documentData = documentFile.bytes;
+        if (documentData == null) {
+          print('Document not selected');
+          return;
+        }
+        final chat = Chat(
+          message: documentFile.name,
+          timestamp: DateTime.now().toString(),
+          typeMessage: 'D',
+          pathUrl: documentFile.path,
+        );
+        widget.controller.sendDocument(widget.contact.id, chat, documentData);
+      } catch (error) {
+        print('Error uploading document: $error');
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _videoPlayerController.dispose();
+    super.dispose();
   }
 }

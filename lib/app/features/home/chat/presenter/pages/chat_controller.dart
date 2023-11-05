@@ -38,4 +38,25 @@ abstract class ChatControllerBase with Store {
     var result = await sendAudios(idChat, message, audio);
     result.fold((l) {}, (r) {});
   }
+
+  Future sendImage(String id, Chat message, Uint8List image) async {
+    message.userId = _authStore.user!.phoneNumber;
+    final idChat = '$id${_authStore.user!.phoneNumber}';
+    var result = await sendAudios(idChat, message, image);
+    result.fold((l) {}, (r) {});
+  }
+
+  Future sendVideo(String id, Chat message, Uint8List video) async {
+    message.userId = _authStore.user!.phoneNumber;
+    final idChat = '$id${_authStore.user!.phoneNumber}';
+    var result = await sendAudios(idChat, message, video);
+    result.fold((l) {}, (r) {});
+  }
+
+  Future sendDocument(String id, Chat message, Uint8List document) async {
+    message.userId = _authStore.user!.phoneNumber;
+    final idChat = '$id${_authStore.user!.phoneNumber}';
+    var result = await sendAudios(idChat, message, document);
+    result.fold((l) {}, (r) {});
+  }
 }

@@ -61,6 +61,54 @@ class FirebaseDatasourceChats implements IChatDatasource {
       throw ChatException("Error adding audio: $error");
     }
   }
+
+  @override
+  Future<void> sendDocument(String id, Chat chat, Uint8List document) async {
+    try {
+      final documentStorageRef =
+          storage.ref().child('${chat.userId}/document/${chat.message}.pdf');
+      await documentStorageRef.putData(document);
+      final downloadUrl = await documentStorageRef.getDownloadURL();
+      //Adiciono a url na message do document
+      chat.message = downloadUrl;
+      return await sendChat(id, chat);
+    } catch (error) {
+      print("Error uploading document file: $error");
+      throw ChatException("Error adding document: $error");
+    }
+  }
+
+  @override
+  Future<void> sendImage(String id, Chat chat, Uint8List image) async {
+    try {
+      final imageStorageRef =
+          storage.ref().child('${chat.userId}/image/${chat.message}.jpg');
+      await imageStorageRef.putData(image);
+      final downloadUrl = await imageStorageRef.getDownloadURL();
+      //Adiciono a url na message da imagem
+      chat.message = downloadUrl;
+      return await sendChat(id, chat);
+    } catch (error) {
+      print("Error uploading image file: $error");
+      throw ChatException("Error adding image: $error");
+    }
+  }
+
+  @override
+  Future<void> sendVideo(String id, Chat chat, Uint8List video) async {
+    try {
+      final videoStorageRef =
+          storage.ref().child('${chat.userId}/video/${chat.message}.mp4');
+      await videoStorageRef.putData(video);
+      final downloadUrl = await videoStorageRef.getDownloadURL();
+      //Adiciono a url na message do video
+      chat.message = downloadUrl;
+      return await sendChat(id, chat);
+    } catch (error) {
+      print("Error uploading video file: $error");
+      throw ChatException("Error adding video: $error");
+    }
+  }
 }
 
 class ChatException implements Exception {
