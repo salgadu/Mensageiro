@@ -267,7 +267,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> _sendPhoto() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
+      type: FileType.any,
       allowMultiple: false,
     );
 
@@ -279,6 +279,7 @@ class _ChatPageState extends State<ChatPage> {
           print('Photo not selected');
           return;
         }
+        print(photoData);
         final chat = Chat(
           message: photoFile.name,
           timestamp: DateTime.now().toString(),
