@@ -6,6 +6,8 @@ import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
 import 'package:mensageiro/app/features/home/chat/domain/usecases/get_message.dart';
 import 'package:mensageiro/app/features/home/chat/domain/usecases/send_audio.dart';
 import 'package:mensageiro/app/features/home/chat/domain/usecases/send_chat.dart';
+import 'package:mensageiro/app/features/home/chat/domain/usecases/send_document.dart';
+import 'package:mensageiro/app/features/home/chat/domain/usecases/send_image.dart';
 import 'package:mobx/mobx.dart';
 
 part 'chat_controller.g.dart';
@@ -16,9 +18,12 @@ abstract class ChatControllerBase with Store {
   final IGetMessage getMessage;
   final ISendChat sendMessages;
   final ISendAudio sendAudios;
+  final ISendImage sendImages;
+  // final ISendVideo sendVideo;
+  final ISendDocument sendDocuments;
   final AuthStore _authStore = Modular.get<AuthStore>();
 
-  ChatControllerBase(this.sendMessages, this.getMessage, this.sendAudios);
+  ChatControllerBase(this.sendMessages, this.getMessage, this.sendAudios, this.sendImages, this.sendDocuments);
 
   Future sendMessage(String id, Chat message) async {
     message.userId = _authStore.user!.phoneNumber;
@@ -42,21 +47,21 @@ abstract class ChatControllerBase with Store {
   Future sendImage(String id, Chat message, Uint8List image) async {
     message.userId = _authStore.user!.phoneNumber;
     final idChat = '$id${_authStore.user!.phoneNumber}';
-    var result = await sendAudios(idChat, message, image);
+    var result = await sendImages(idChat, message, image);
     result.fold((l) {}, (r) {});
   }
 
-  Future sendVideo(String id, Chat message, Uint8List video) async {
-    message.userId = _authStore.user!.phoneNumber;
-    final idChat = '$id${_authStore.user!.phoneNumber}';
-    var result = await sendAudios(idChat, message, video);
-    result.fold((l) {}, (r) {});
-  }
+  // Future sendVideo(String id, Chat message, Uint8List video) async {
+  //   message.userId = _authStore.user!.phoneNumber;
+  //   final idChat = '$id${_authStore.user!.phoneNumber}';
+  //   var result = await sendAudios(idChat, message, video);
+  //   result.fold((l) {}, (r) {});
+  // }
 
   Future sendDocument(String id, Chat message, Uint8List document) async {
     message.userId = _authStore.user!.phoneNumber;
     final idChat = '$id${_authStore.user!.phoneNumber}';
-    var result = await sendAudios(idChat, message, document);
+    var result = await sendDocuments(idChat, message, document);
     result.fold((l) {}, (r) {});
   }
 }

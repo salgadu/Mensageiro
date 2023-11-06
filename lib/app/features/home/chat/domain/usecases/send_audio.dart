@@ -14,8 +14,7 @@ class SendAudioImpl implements ISendAudio {
   SendAudioImpl(this.repository);
   @override
   Future<Either<Failure, Unit>> call(
-      String id, Chat chat, Uint8List audio) async {
-    //TODO converter string em Unit8List
+    String id, Chat chat, Uint8List audio) async {
     return await repository.sendAudio(id, chat, audio);
   }
 }

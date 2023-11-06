@@ -30,7 +30,6 @@ class _ChatPageState extends State<ChatPage> {
   bool isLoading = false;
   bool isPause = false;
 
-
   @override
   void initState() {
     super.initState();
@@ -52,14 +51,16 @@ class _ChatPageState extends State<ChatPage> {
           ),
         ],
       ),
-      body:  Column(
+      body: Column(
         children: <Widget>[
           Expanded(
             child: StreamBuilder<List<Chat>>(
               stream: widget.controller.messages(widget.contact.id),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  return Stack(children: [ _buildMessagesList(snapshot.data!)],);
+                  return Stack(
+                    children: [_buildMessagesList(snapshot.data!)],
+                  );
                 } else if (snapshot.hasError) {
                   return Text("Error: ${snapshot.error}");
                 } else {
@@ -82,42 +83,41 @@ class _ChatPageState extends State<ChatPage> {
         final message = messages[index];
         if (message.typeMessage == 'A') {
           return BubbleNormalAudio(
-                  color: const Color(0xFFE8E8EE),
-                  duration: duration.inSeconds.toDouble(),
-                  position: position.inSeconds.toDouble(),
-                  isPlaying: isPlaying,
-                  isLoading: isLoading,
-                  isPause: isPause,
-                  onSeekChanged: _changeSeek,
-                  onPlayPauseButtonClick: ()async{
-                    _playAudio(audioLink: message.message);
-                  },
-                  sent: true,
-                );
+            color: const Color(0xFFE8E8EE),
+            duration: duration.inSeconds.toDouble(),
+            position: position.inSeconds.toDouble(),
+            isPlaying: isPlaying,
+            isLoading: isLoading,
+            isPause: isPause,
+            onSeekChanged: _changeSeek,
+            onPlayPauseButtonClick: () async {
+              _playAudio(audioLink: message.message);
+            },
+            sent: true,
+          );
         } else if (message.typeMessage == 'P') {
-          return  BubbleNormalImage(
-                  id: message.id??message.timestamp,
-                  image: _image(message.message),
-                  color: Colors.purpleAccent,
-                  tail: true,
-                  delivered: true,
-                );
+          return BubbleNormalImage(
+            id: message.id ?? message.timestamp,
+            image: _image(message.message),
+            color: Colors.purpleAccent,
+            tail: true,
+            delivered: true,
+          );
         } else if (message.typeMessage == 'V') {
           return _buildVideoMessage(message);
         } else if (message.typeMessage == 'D') {
           return _buildDocumentMessage(message);
         }
         return BubbleNormal(
-                  text: message.message,
-                  isSender: message.userId != widget.contact.id,
-                  color: const Color(0xFF1B97F3),
-                  tail: true,                 
-                  textStyle:const TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                    
-                  ),
-                );
+          text: message.message,
+          isSender: message.userId != widget.contact.id,
+          color: const Color(0xFF1B97F3),
+          tail: true,
+          textStyle: const TextStyle(
+            fontSize: 20,
+            color: Colors.white,
+          ),
+        );
       },
     );
   }
@@ -221,7 +221,6 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-
   void _showAttachmentOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -241,7 +240,7 @@ class _ChatPageState extends State<ChatPage> {
                 Icon(Icons.videocam),
                 'Vídeos',
                 () {
-                  _sendVideo();
+                  // _sendVideo();
                 },
               ),
               _buildAttachmentOption(
@@ -293,32 +292,32 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  Future<void> _sendVideo() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.video,
-      allowMultiple: false,
-    );
+  // Future<void> _sendVideo() async {
+  //   FilePickerResult? result = await FilePicker.platform.pickFiles(
+  //     type: FileType.video,
+  //     allowMultiple: false,
+  //   );
 
-    if (result != null && result.files.isNotEmpty) {
-      final videoFile = result.files.first;
-      try {
-        final videoData = videoFile.bytes;
-        if (videoData == null) {
-          print('Video not selected');
-          return;
-        }
-        final chat = Chat(
-          message: videoFile.name,
-          timestamp: DateTime.now().toString(),
-          typeMessage: 'V',
-          pathUrl: videoFile.path,
-        );
-        widget.controller.sendVideo(widget.contact.id, chat, videoData);
-      } catch (error) {
-        print('Error uploading video: $error');
-      }
-    }
-  }
+  //   if (result != null && result.files.isNotEmpty) {
+  //     final videoFile = result.files.first;
+  //     try {
+  //       final videoData = videoFile.bytes;
+  //       if (videoData == null) {
+  //         print('Video not selected');
+  //         return;
+  //       }
+  //       final chat = Chat(
+  //         message: videoFile.name,
+  //         timestamp: DateTime.now().toString(),
+  //         typeMessage: 'V',
+  //         pathUrl: videoFile.path,
+  //       );
+  //       widget.controller.sendVideo(widget.contact.id, chat, videoData);
+  //     } catch (error) {
+  //       print('Error uploading video: $error');
+  //     }
+  //   }
+  // }
 
   Future<void> _sendDocuments() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -348,16 +347,14 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  
-
-   Widget _image(String image) {
+  Widget _image(String image) {
     return Container(
       constraints: const BoxConstraints(
         minHeight: 20.0,
         minWidth: 20.0,
       ),
       child: CachedNetworkImage(
-        imageUrl:image,
+        imageUrl: image,
         progressIndicatorBuilder: (context, url, downloadProgress) =>
             CircularProgressIndicator(value: downloadProgress.progress),
         errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -365,9 +362,8 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-   void _playAudio({required String audioLink}) async {
-    final url =
-        audioLink;
+  void _playAudio({required String audioLink}) async {
+    final url = audioLink;
     if (isPause) {
       await audioPlayer.resume();
       setState(() {
@@ -409,11 +405,13 @@ class _ChatPageState extends State<ChatPage> {
       });
     });
   }
- void _changeSeek(double value) {
+
+  void _changeSeek(double value) {
     setState(() {
       audioPlayer.seek(new Duration(seconds: value.toInt()));
     });
   }
+
   @override
   void dispose() {
     _videoPlayerController.dispose();

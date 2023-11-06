@@ -24,7 +24,7 @@ class ChatModule extends Module {
     i.add<ISendAudio>(SendAudioImpl.new);
     i.add<ISendDocument>(SendDocumentImpl.new);
     i.add<ISendImage>(SendImageImpl.new);
-    i.add<ISendVideo>(SendVideoImpl.new);
+    // i.add<ISendVideo>(SendVideoImpl.new);
   }
 
   @override
