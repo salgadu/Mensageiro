@@ -39,6 +39,7 @@ class FirebaseDatasourceChats implements IChatDatasource {
         'message': chat.message,
         'timestamp': chat.timestamp,
         'userId': chat.userId,
+        'typeMessage':chat.typeMessage
       });
     } catch (e) {
       print("Error adding message: $e");

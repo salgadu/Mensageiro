@@ -6,6 +6,8 @@ import 'package:mensageiro/app/features/home/chat/presenter/pages/chat_controlle
 import 'package:mensageiro/app/features/home/contact/domain/entity/contact.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:video_player/video_player.dart';
+import 'package:chat_bubbles/chat_bubbles.dart';
+import "package:cached_network_image/cached_network_image.dart";
 
 class ChatPage extends StatefulWidget {
   final ChatController controller;
@@ -19,9 +21,15 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final player = AudioPlayer();
   final TextEditingController _messageController = TextEditingController();
   late VideoPlayerController _videoPlayerController;
+  AudioPlayer audioPlayer = new AudioPlayer();
+  Duration duration = new Duration();
+  Duration position = new Duration();
+  bool isPlaying = false;
+  bool isLoading = false;
+  bool isPause = false;
+
 
   @override
   void initState() {
@@ -44,14 +52,14 @@ class _ChatPageState extends State<ChatPage> {
           ),
         ],
       ),
-      body: Column(
+      body:  Column(
         children: <Widget>[
           Expanded(
             child: StreamBuilder<List<Chat>>(
               stream: widget.controller.messages(widget.contact.id),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  return _buildMessagesList(snapshot.data!);
+                  return Stack(children: [ _buildMessagesList(snapshot.data!)],);
                 } else if (snapshot.hasError) {
                   return Text("Error: ${snapshot.error}");
                 } else {
@@ -73,48 +81,44 @@ class _ChatPageState extends State<ChatPage> {
       itemBuilder: (context, index) {
         final message = messages[index];
         if (message.typeMessage == 'A') {
-          return _buildAudioMessage(message);
+          return BubbleNormalAudio(
+                  color: const Color(0xFFE8E8EE),
+                  duration: duration.inSeconds.toDouble(),
+                  position: position.inSeconds.toDouble(),
+                  isPlaying: isPlaying,
+                  isLoading: isLoading,
+                  isPause: isPause,
+                  onSeekChanged: _changeSeek,
+                  onPlayPauseButtonClick: ()async{
+                    _playAudio(audioLink: message.message);
+                  },
+                  sent: true,
+                );
         } else if (message.typeMessage == 'P') {
-          return _buildPhotoMessage(message);
+          return  BubbleNormalImage(
+                  id: message.id??message.timestamp,
+                  image: _image(message.message),
+                  color: Colors.purpleAccent,
+                  tail: true,
+                  delivered: true,
+                );
         } else if (message.typeMessage == 'V') {
           return _buildVideoMessage(message);
         } else if (message.typeMessage == 'D') {
           return _buildDocumentMessage(message);
         }
-        return _buildTextMessage(message);
+        return BubbleNormal(
+                  text: message.message,
+                  isSender: message.userId != widget.contact.id,
+                  color: const Color(0xFF1B97F3),
+                  tail: true,                 
+                  textStyle:const TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    
+                  ),
+                );
       },
-    );
-  }
-
-  Widget _buildAudioMessage(Chat message) {
-    return ListTile(
-      title: InkWell(
-        child: Text("Audio Message"),
-        onTap: () {
-          _playAudio(message.message);
-        },
-      ),
-    );
-  }
-
-  Widget _buildTextMessage(Chat message) {
-    return ListTile(
-      title: Text(
-        message.message,
-        textAlign: message.userId == widget.contact.id
-            ? TextAlign.left
-            : TextAlign.right,
-      ),
-    );
-  }
-
-  Widget _buildPhotoMessage(Chat message) {
-    return ListTile(
-      title: Image.asset(
-        message.message, // Replace with the actual asset path
-        width: 100,
-        height: 100,
-      ),
     );
   }
 
@@ -217,9 +221,6 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _playAudio(String audioUrl) async {
-    await player.play(audioUrl as Source);
-  }
 
   void _showAttachmentOptions(BuildContext context) {
     showModalBottomSheet(
@@ -347,6 +348,72 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  
+
+   Widget _image(String image) {
+    return Container(
+      constraints: const BoxConstraints(
+        minHeight: 20.0,
+        minWidth: 20.0,
+      ),
+      child: CachedNetworkImage(
+        imageUrl:image,
+        progressIndicatorBuilder: (context, url, downloadProgress) =>
+            CircularProgressIndicator(value: downloadProgress.progress),
+        errorWidget: (context, url, error) => const Icon(Icons.error),
+      ),
+    );
+  }
+
+   void _playAudio({required String audioLink}) async {
+    final url =
+        audioLink;
+    if (isPause) {
+      await audioPlayer.resume();
+      setState(() {
+        isPlaying = true;
+        isPause = false;
+      });
+    } else if (isPlaying) {
+      await audioPlayer.pause();
+      setState(() {
+        isPlaying = false;
+        isPause = true;
+      });
+    } else {
+      setState(() {
+        isLoading = true;
+      });
+      await audioPlayer.play(UrlSource(url));
+      setState(() {
+        isPlaying = true;
+      });
+    }
+
+    audioPlayer.onDurationChanged.listen((Duration d) {
+      setState(() {
+        duration = d;
+        isLoading = false;
+      });
+    });
+    audioPlayer.onPositionChanged.listen((Duration p) {
+      setState(() {
+        position = p;
+      });
+    });
+    audioPlayer.onPlayerComplete.listen((event) {
+      setState(() {
+        isPlaying = false;
+        duration = new Duration();
+        position = new Duration();
+      });
+    });
+  }
+ void _changeSeek(double value) {
+    setState(() {
+      audioPlayer.seek(new Duration(seconds: value.toInt()));
+    });
+  }
   @override
   void dispose() {
     _videoPlayerController.dispose();
