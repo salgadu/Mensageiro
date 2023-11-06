@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:mensageiro/app/core/infra/file_acess/i_file_access.dart';
 import 'package:mensageiro/app/core/store/auth/auth_store.dart';
 import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
 import 'package:mensageiro/app/features/home/chat/domain/usecases/get_message.dart';
@@ -19,11 +21,11 @@ abstract class ChatControllerBase with Store {
   final ISendChat sendMessages;
   final ISendAudio sendAudios;
   final ISendImage sendImages;
-  // final ISendVideo sendVideo;
+  final IFileAccess fileAccess;
   final ISendDocument sendDocuments;
   final AuthStore _authStore = Modular.get<AuthStore>();
 
-  ChatControllerBase(this.sendMessages, this.getMessage, this.sendAudios, this.sendImages, this.sendDocuments);
+  ChatControllerBase(this.sendMessages, this.getMessage, this.sendAudios, this.sendImages, this.sendDocuments, this.fileAccess);
 
   Future sendMessage(String id, Chat message) async {
     message.userId = _authStore.user!.phoneNumber;
@@ -37,31 +39,57 @@ abstract class ChatControllerBase with Store {
     return getMessage(idChat);
   }
 
-  Future sendAudio(String id, Chat message, Uint8List audio) async {
-    message.userId = _authStore.user!.phoneNumber;
+  Future sendAudio(String id) async {
+    Uint8List? audio;
+    final resultAudio = await fileAccess.pickAudio();
+    resultAudio.fold((l) => l, (r) => audio = r);
+    if (audio == null) {
+      print("Audio not selected");
+      return;
+    }
+    final chat = Chat(
+      userId: _authStore.user!.phoneNumber,
+      timestamp: DateTime.now().toString(),
+      typeMessage: 'A',
+    );
     final idChat = '$id${_authStore.user!.phoneNumber}';
-    var result = await sendAudios(idChat, message, audio);
+    var result = await sendAudios(idChat, chat, audio!);
     result.fold((l) {}, (r) {});
   }
 
-  Future sendImage(String id, Chat message, Uint8List image) async {
-    message.userId = _authStore.user!.phoneNumber;
+  Future sendDocument(String id) async {
+    Uint8List? document;
+    final resultDocument = await fileAccess.pickDocument();
+    resultDocument.fold((l) => l, (r) => document = r);
+    if (document == null) {
+      print("Document not selected");
+      return;
+    }
+    final chat = Chat(
+      userId: _authStore.user!.phoneNumber,
+      timestamp: DateTime.now().toString(),
+      typeMessage: 'D',
+    );
     final idChat = '$id${_authStore.user!.phoneNumber}';
-    var result = await sendImages(idChat, message, image);
+    var result = await sendDocuments(idChat, chat, document!);
     result.fold((l) {}, (r) {});
   }
 
-  // Future sendVideo(String id, Chat message, Uint8List video) async {
-  //   message.userId = _authStore.user!.phoneNumber;
-  //   final idChat = '$id${_authStore.user!.phoneNumber}';
-  //   var result = await sendAudios(idChat, message, video);
-  //   result.fold((l) {}, (r) {});
-  // }
-
-  Future sendDocument(String id, Chat message, Uint8List document) async {
-    message.userId = _authStore.user!.phoneNumber;
+  Future sendImage(String id) async {
+    String image = '';
+    final resultImage = await fileAccess.pickImageBase64();
+    resultImage.fold((l) => l, (r) => image = r ?? '');
+    if (image.isEmpty) {
+      print("Image not selected");
+      return;
+    }
+    final chat = Chat(
+      userId: _authStore.user!.phoneNumber,
+      timestamp: DateTime.now().toString(),
+      typeMessage: 'P',
+    );
     final idChat = '$id${_authStore.user!.phoneNumber}';
-    var result = await sendDocuments(idChat, message, document);
+    var result = await sendImages(idChat, chat, base64Decode(image));
     result.fold((l) {}, (r) {});
   }
 }

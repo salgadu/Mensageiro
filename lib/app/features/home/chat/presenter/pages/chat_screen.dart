@@ -195,30 +195,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _sendAudio() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.audio,
-      allowMultiple: false,
-    );
-
-    if (result != null && result.files.isNotEmpty) {
-      final audioFile = result.files.first;
-      try {
-        final audioData = audioFile.bytes;
-        if (audioData == null) {
-          print('Audio not recorded');
-          return;
-        }
-        final chat = Chat(
-          message: audioFile.name,
-          timestamp: DateTime.now().toString(),
-          typeMessage: 'A',
-          pathUrl: audioFile.path,
-        );
-        widget.controller.sendAudio(widget.contact.id, chat, audioData);
-      } catch (error) {
-        print('Error uploading audio: $error');
-      }
-    }
+    await widget.controller.sendAudio(widget.contact.id);
   }
 
   void _showAttachmentOptions(BuildContext context) {
@@ -266,86 +243,11 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _sendPhoto() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.any,
-      allowMultiple: false,
-    );
-
-    if (result != null && result.files.isNotEmpty) {
-      final photoFile = result.files.first;
-      try {
-        final photoData = photoFile.bytes;
-        if (photoData == null) {
-          print('Photo not selected');
-          return;
-        }
-        print(photoData);
-        final chat = Chat(
-          message: photoFile.name,
-          timestamp: DateTime.now().toString(),
-          typeMessage: 'P',
-          pathUrl: photoFile.path,
-        );
-        widget.controller.sendImage(widget.contact.id, chat, photoData);
-      } catch (error) {
-        print('Error uploading photo: $error');
-      }
-    }
+  await widget.controller.sendImage(widget.contact.id);
   }
 
-  // Future<void> _sendVideo() async {
-  //   FilePickerResult? result = await FilePicker.platform.pickFiles(
-  //     type: FileType.video,
-  //     allowMultiple: false,
-  //   );
-
-  //   if (result != null && result.files.isNotEmpty) {
-  //     final videoFile = result.files.first;
-  //     try {
-  //       final videoData = videoFile.bytes;
-  //       if (videoData == null) {
-  //         print('Video not selected');
-  //         return;
-  //       }
-  //       final chat = Chat(
-  //         message: videoFile.name,
-  //         timestamp: DateTime.now().toString(),
-  //         typeMessage: 'V',
-  //         pathUrl: videoFile.path,
-  //       );
-  //       widget.controller.sendVideo(widget.contact.id, chat, videoData);
-  //     } catch (error) {
-  //       print('Error uploading video: $error');
-  //     }
-  //   }
-  // }
-
   Future<void> _sendDocuments() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowMultiple: false,
-      allowedExtensions: ['pdf'],
-    );
-
-    if (result != null && result.files.isNotEmpty) {
-      final documentFile = result.files.first;
-      try {
-        final documentData = documentFile.bytes;
-        if (documentData == null) {
-          print('Document not selected');
-          return;
-        }
-        final chat = Chat(
-          message: documentFile.name,
-          timestamp: DateTime.now().toString(),
-          typeMessage: 'D',
-          pathUrl: documentFile.path,
-        );
-        widget.controller.sendDocument(widget.contact.id, chat, documentData);
-      } catch (error) {
-        print('Error uploading document: $error');
-      }
-    }
+   await widget.controller.sendDocument(widget.contact.id);
   }
 
   Widget _image(String image) {
@@ -357,7 +259,7 @@ class _ChatPageState extends State<ChatPage> {
       child: CachedNetworkImage(
         imageUrl: image,
         progressIndicatorBuilder: (context, url, downloadProgress) =>
-            CircularProgressIndicator(value: downloadProgress.progress),
+          CircularProgressIndicator(value: downloadProgress.progress),
         errorWidget: (context, url, error) => const Icon(Icons.error),
       ),
     );
