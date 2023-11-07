@@ -11,5 +11,5 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  return runApp(ModularApp(module: AppModule(), child: AppWidget()));
+  return runApp(ModularApp(module: AppModule(), child: const AppWidget()));
 }

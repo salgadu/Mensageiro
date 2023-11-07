@@ -1,10 +1,14 @@
+
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:mensageiro/app/core/infra/call/signalling_service.dart';
 import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
 import 'package:mensageiro/app/features/home/chat/presenter/pages/chat_controller.dart';
 import 'package:mensageiro/app/features/home/contact/domain/entity/contact.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:record/record.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
 import "package:cached_network_image/cached_network_image.dart";
@@ -23,12 +27,14 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
   late VideoPlayerController _videoPlayerController;
-  AudioPlayer audioPlayer = new AudioPlayer();
-  Duration duration = new Duration();
-  Duration position = new Duration();
+  AudioPlayer audioPlayer =  AudioPlayer();
+  Duration duration = const Duration();
+  Duration position = const Duration();
   bool isPlaying = false;
   bool isLoading = false;
   bool isPause = false;
+  AudioRecorder _audioRecorder = AudioRecorder();
+  bool _isPressed = false;
 
   @override
   void initState() {
@@ -82,15 +88,17 @@ class _ChatPageState extends State<ChatPage> {
       itemBuilder: (context, index) {
         final message = messages[index];
         if (message.typeMessage == 'A') {
-          return BubbleNormalAudio(
+          return BubbleNormalAudio(           
             color: const Color(0xFFE8E8EE),
-            duration: duration.inSeconds.toDouble(),
+            duration:duration.inSeconds.toDouble(),
             position: position.inSeconds.toDouble(),
             isPlaying: isPlaying,
             isLoading: isLoading,
             isPause: isPause,
+             isSender: message.userId != widget.contact.id,
             onSeekChanged: _changeSeek,
-            onPlayPauseButtonClick: () async {
+            key: Key(message.timestamp),
+            onPlayPauseButtonClick: ()  {
               _playAudio(audioLink: message.message);
             },
             sent: true,
@@ -101,7 +109,9 @@ class _ChatPageState extends State<ChatPage> {
             image: _image(message.message),
             color: Colors.purpleAccent,
             tail: true,
+             sent: true,
             delivered: true,
+            
           );
         } else if (message.typeMessage == 'V') {
           return _buildVideoMessage(message);
@@ -112,6 +122,7 @@ class _ChatPageState extends State<ChatPage> {
           text: message.message,
           isSender: message.userId != widget.contact.id,
           color: const Color(0xFF1B97F3),
+           sent: true,
           tail: true,
           textStyle: const TextStyle(
             fontSize: 20,
@@ -163,12 +174,23 @@ class _ChatPageState extends State<ChatPage> {
               _sendMessage(_messageController.text);
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.mic),
-            onPressed: () {
-              _sendAudio();
+          GestureDetector(
+            child:  Icon(Icons.mic,color: _isPressed ? Colors.red : null,size: _isPressed ? 80:28,),
+            onLongPress: (){
+              setState(() {
+                  _isPressed = true;
+                   _recordAudio();
+              });
+             
+            }  ,
+            onLongPressUp: () {
+              setState(() {
+                _isPressed = false;
+                _recordAudioStop();
+              });
             },
           ),
+          
         ],
       ),
     );
@@ -194,8 +216,24 @@ class _ChatPageState extends State<ChatPage> {
     _messageController.clear();
   }
 
-  Future<void> _sendAudio() async {
-    await widget.controller.sendAudio(widget.contact.id);
+  Future<void> _recordAudioStop() async {
+   final recording = await _audioRecorder.stop();
+   if(recording == null){
+    return;
+   }
+    await widget.controller.sendAudio(widget.contact.id,recording);
+    
+  }
+
+   Future<void> _recordAudio() async {
+    if (await _audioRecorder.hasPermission()) {
+      String directoryPath = (await getApplicationDocumentsDirectory()).path;
+      Directory('$directoryPath/audio/').createSync(recursive: true);
+      String filePath = '$directoryPath${DateTime.now().millisecondsSinceEpoch}.wav';
+    
+    await _audioRecorder.start(const RecordConfig( encoder: AudioEncoder.wav,bitRate: 128000), path: filePath);
+    //  final stream = await _audioRecorder.startStream(const RecordConfig(encoder:  AudioEncoder.pcm16bits));
+    } 
   }
 
   void _showAttachmentOptions(BuildContext context) {
@@ -283,13 +321,19 @@ class _ChatPageState extends State<ChatPage> {
       setState(() {
         isLoading = true;
       });
-      await audioPlayer.play(UrlSource(url));
+      //  DeviceFileSource source = DeviceFileSource(url);
+      await audioPlayer.setSourceDeviceFile(url);
+       audioPlayer.resume();
+      //  audioPlayer.audioCache;      
+     
       setState(() {
+        audioPlayer.getDuration.call().then((value) => duration = value!);
         isPlaying = true;
-      });
+      });      
     }
 
     audioPlayer.onDurationChanged.listen((Duration d) {
+      print('Duration: $d');
       setState(() {
         duration = d;
         isLoading = false;
@@ -303,21 +347,23 @@ class _ChatPageState extends State<ChatPage> {
     audioPlayer.onPlayerComplete.listen((event) {
       setState(() {
         isPlaying = false;
-        duration = new Duration();
-        position = new Duration();
+        duration = const Duration();
+        position = const Duration();
       });
     });
   }
 
   void _changeSeek(double value) {
     setState(() {
-      audioPlayer.seek(new Duration(seconds: value.toInt()));
+      audioPlayer.seek( Duration(seconds: value.toInt()));
     });
   }
 
   @override
   void dispose() {
     _videoPlayerController.dispose();
+   audioPlayer.dispose();
+   _audioRecorder.dispose();
     super.dispose();
   }
 }

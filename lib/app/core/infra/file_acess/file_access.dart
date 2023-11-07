@@ -124,6 +124,7 @@ class FileAccess implements IFileAccess {
   Future<Either<Failure, Uint8List?>> pickAudio() async {
     try {
       final audio = await _filePicker.pickFiles(
+        
         type: FileType.audio,
         allowMultiple: false,
       );

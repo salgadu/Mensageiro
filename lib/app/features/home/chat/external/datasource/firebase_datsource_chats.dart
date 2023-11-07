@@ -51,7 +51,7 @@ class FirebaseDatasourceChats implements IChatDatasource {
   Future<void> sendAudio(String id, Chat chat, Uint8List audio) async {
     try {
       final audioStorageRef =
-          storage.ref().child('${chat.userId}/audio/${chat.message}.mp3');
+          storage.ref().child('${chat.userId}/audio/${chat.message}.wav');
       await audioStorageRef.putData(audio);
       final downloadUrl = await audioStorageRef.getDownloadURL();
       //Adiciono a url na message do audio

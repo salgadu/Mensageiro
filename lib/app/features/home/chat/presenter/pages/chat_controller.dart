@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_modular/flutter_modular.dart';
@@ -39,21 +40,21 @@ abstract class ChatControllerBase with Store {
     return getMessage(idChat);
   }
 
-  Future sendAudio(String id) async {
+  Future sendAudio(String id, String pathAudio) async {   
     Uint8List? audio;
-    final resultAudio = await fileAccess.pickAudio();
-    resultAudio.fold((l) => l, (r) => audio = r);
-    if (audio == null) {
-      print("Audio not selected");
-      return;
-    }
+
+     File file = File(pathAudio);
+  List<int> bytes = await file.readAsBytes();
+
+   audio = Uint8List.fromList(bytes);   
     final chat = Chat(
+      message: DateTime.now().toString() ,
       userId: _authStore.user!.phoneNumber,
       timestamp: DateTime.now().toString(),
       typeMessage: 'A',
     );
     final idChat = '$id${_authStore.user!.phoneNumber}';
-    var result = await sendAudios(idChat, chat, audio!);
+    var result = await sendAudios(idChat, chat, audio);
     result.fold((l) {}, (r) {});
   }
 
@@ -66,6 +67,7 @@ abstract class ChatControllerBase with Store {
       return;
     }
     final chat = Chat(
+       message: DateTime.now().toString() ,
       userId: _authStore.user!.phoneNumber,
       timestamp: DateTime.now().toString(),
       typeMessage: 'D',
@@ -84,6 +86,7 @@ abstract class ChatControllerBase with Store {
       return;
     }
     final chat = Chat(
+       message: DateTime.now().toString() ,
       userId: _authStore.user!.phoneNumber,
       timestamp: DateTime.now().toString(),
       typeMessage: 'P',
