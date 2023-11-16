@@ -65,6 +65,16 @@ dependencies:
   cached_network_image: ^3.3.0
   image_picker: ^1.0.4
   file_picker: ^6.1.1
+  animate_do: ^3.1.2
+  pinput: ^3.0.1
+  get: ^4.6.6
+  flutter_svg: ^2.0.9
+  screenshot: ^2.1.0
+  share_plus: ^7.2.1
+  flutter_screenutil: ^5.9.0
+  universal_platform: ^1.0.0+1
+  intl: ^0.18.1
+  easy_rich_text: ^2.0.0
 
 dev_dependencies:
   flutter_test:

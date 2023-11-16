@@ -1,6 +1,4 @@
-
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:mensageiro/app/core/infra/call/signalling_service.dart';
 import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
@@ -17,8 +15,11 @@ class ChatPage extends StatefulWidget {
   final ChatController controller;
   final Contact contact;
 
-  const ChatPage({Key? key, required this.controller, required this.contact})
-      : super(key: key);
+  const ChatPage({
+    Key? key,
+    required this.controller,
+    required this.contact,
+  }) : super(key: key);
 
   @override
   _ChatPageState createState() => _ChatPageState();
@@ -27,7 +28,7 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
   late VideoPlayerController _videoPlayerController;
-  AudioPlayer audioPlayer =  AudioPlayer();
+  AudioPlayer audioPlayer = AudioPlayer();
   Duration duration = const Duration();
   Duration position = const Duration();
   bool isPlaying = false;
@@ -39,7 +40,6 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    // ignore: deprecated_member_use
     _videoPlayerController = VideoPlayerController.network('');
   }
 
@@ -51,9 +51,7 @@ class _ChatPageState extends State<ChatPage> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.call),
-            onPressed: () {
-              _startVideoCall();
-            },
+            onPressed: _startVideoCall,
           ),
         ],
       ),
@@ -70,7 +68,7 @@ class _ChatPageState extends State<ChatPage> {
                 } else if (snapshot.hasError) {
                   return Text("Error: ${snapshot.error}");
                 } else {
-                  return const CircularProgressIndicator();
+                  return CircularProgressIndicator();
                 }
               },
             ),
@@ -88,56 +86,52 @@ class _ChatPageState extends State<ChatPage> {
       itemBuilder: (context, index) {
         final message = messages[index];
         if (message.typeMessage == 'A') {
-          return BubbleNormalAudio(           
-            color: const Color(0xFFE8E8EE),
-            duration:duration.inSeconds.toDouble(),
-            position: position.inSeconds.toDouble(),
-            isPlaying: isPlaying,
-            isLoading: isLoading,
-            isPause: isPause,
-             isSender: message.userId != widget.contact.id,
-            onSeekChanged: _changeSeek,
-            key: Key(message.timestamp),
-            onPlayPauseButtonClick: ()  {
-              _playAudio(audioLink: message.message);
-            },
-            sent: true,
-          );
+          return _buildAudioBubble(message);
         } else if (message.typeMessage == 'P') {
-          return BubbleNormalImage(
-            id: message.id ?? message.timestamp,
-            image: _image(message.message),
-            color: Colors.purpleAccent,
-            tail: true,
-             sent: true,
-            delivered: true,
-            
-          );
+          return _buildImageBubble(message);
         } else if (message.typeMessage == 'V') {
           return _buildVideoMessage(message);
         } else if (message.typeMessage == 'D') {
           return _buildDocumentMessage(message);
         }
-        return BubbleNormal(
-          text: message.message,
-          isSender: message.userId != widget.contact.id,
-          color: const Color(0xFF1B97F3),
-           sent: true,
-          tail: true,
-          textStyle: const TextStyle(
-            fontSize: 20,
-            color: Colors.white,
-          ),
-        );
+        return _buildTextBubble(message);
       },
+    );
+  }
+
+  Widget _buildAudioBubble(Chat message) {
+    return BubbleNormalAudio(
+      color: const Color(0xFFE8E8EE),
+      duration: duration.inSeconds.toDouble(),
+      position: position.inSeconds.toDouble(),
+      isPlaying: isPlaying,
+      isLoading: isLoading,
+      isPause: isPause,
+      isSender: message.userId != widget.contact.id,
+      onSeekChanged: _changeSeek,
+      key: Key(message.timestamp),
+      onPlayPauseButtonClick: () {
+        _playAudio(audioLink: message.message);
+      },
+      sent: true,
+    );
+  }
+
+  Widget _buildImageBubble(Chat message) {
+    return BubbleNormalImage(
+      id: message.id ?? message.timestamp,
+      image: _image(message.message),
+      color: Colors.transparent,
+      tail: true,
+      sent: true,
+      delivered: true,
     );
   }
 
   Widget _buildVideoMessage(Chat message) {
     return ListTile(
       title: AspectRatio(
-        aspectRatio: 16 /
-            9, // You can adjust the aspect ratio based on your video dimensions
+        aspectRatio: 16 / 9,
         child: VideoPlayer(_videoPlayerController),
       ),
     );
@@ -149,50 +143,117 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  Widget _buildTextBubble(Chat message) {
+    return BubbleNormal(
+      text: message.message,
+      isSender: message.userId != widget.contact.id,
+      color: Colors.black,
+      sent: true,
+      tail: true,
+      textStyle: const TextStyle(
+        fontSize: 20,
+        color: Colors.white,
+      ),
+    );
+  }
+
   Widget _buildMessageComposer(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.attach_file),
-            onPressed: () {
-              _showAttachmentOptions(context);
-            },
-          ),
           Expanded(
-            child: TextField(
-              controller: _messageController,
-              decoration:
-                  const InputDecoration(hintText: 'Digite uma mensagem...'),
-              onSubmitted: _sendMessage,
+            child: Container(
+              margin: const EdgeInsets.only(right: 8.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20.0),
+                color: Colors.grey[300],
+              ),
+              child: Row(
+                children: <Widget>[
+                  _buildAttachmentButton(context),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: TextField(
+                        controller: _messageController,
+                        decoration: const InputDecoration(
+                          hintText: 'Digite uma mensagem...',
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.all(10.0),
+                        ),
+                      ),
+                    ),
+                  ),
+                  _buildSendButton(),
+                ],
+              ),
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.send),
-            onPressed: () {
-              _sendMessage(_messageController.text);
-            },
-          ),
-          GestureDetector(
-            child:  Icon(Icons.mic,color: _isPressed ? Colors.red : null,size: _isPressed ? 80:28,),
-            onLongPress: (){
-              setState(() {
-                  _isPressed = true;
-                   _recordAudio();
-              });
-             
-            }  ,
-            onLongPressUp: () {
-              setState(() {
-                _isPressed = false;
-                _recordAudioStop();
-              });
-            },
-          ),
-          
+          _buildMicButton(),
         ],
       ),
+    );
+  }
+
+  Widget _buildAttachmentButton(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.0),
+        color: Colors.black,
+      ),
+      child: IconButton(
+        icon: Icon(Icons.add, color: Colors.white),
+        onPressed: () {
+          _showAttachmentOptions(context);
+        },
+      ),
+    );
+  }
+
+  Widget _buildSendButton() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.0),
+        color: Colors.grey,
+      ),
+      child: IconButton(
+        icon: Icon(Icons.send, color: Colors.white),
+        onPressed: () {
+          _sendMessage(_messageController.text);
+        },
+      ),
+    );
+  }
+
+  Widget _buildMicButton() {
+    return GestureDetector(
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: _isPressed ? Colors.red : Colors.grey[300],
+        ),
+        padding: const EdgeInsets.all(12.0),
+        child: Icon(
+          Icons.mic,
+          color: _isPressed ? Colors.white : Colors.black,
+          size: _isPressed ? 32 : 28,
+        ),
+      ),
+      onLongPress: () {
+        setState(() {
+          _isPressed = true;
+          _recordAudio();
+        });
+      },
+      onLongPressUp: () {
+        setState(() {
+          _isPressed = false;
+          _recordAudioStop();
+        });
+      },
     );
   }
 
@@ -217,23 +278,26 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _recordAudioStop() async {
-   final recording = await _audioRecorder.stop();
-   if(recording == null){
-    return;
-   }
-    await widget.controller.sendAudio(widget.contact.id,recording);
-    
+    final recording = await _audioRecorder.stop();
+    if (recording == null) {
+      return;
+    }
+    await widget.controller.sendAudio(widget.contact.id, recording);
   }
 
-   Future<void> _recordAudio() async {
+  Future<void> _recordAudio() async {
     if (await _audioRecorder.hasPermission()) {
-      String directoryPath = (await getApplicationDocumentsDirectory()).path;
+      String directoryPath =
+          (await getApplicationDocumentsDirectory()).path;
       Directory('$directoryPath/audio/').createSync(recursive: true);
-      String filePath = '$directoryPath${DateTime.now().millisecondsSinceEpoch}.wav';
-    
-    await _audioRecorder.start(const RecordConfig( encoder: AudioEncoder.wav,bitRate: 128000), path: filePath);
-    //  final stream = await _audioRecorder.startStream(const RecordConfig(encoder:  AudioEncoder.pcm16bits));
-    } 
+      String filePath =
+          '$directoryPath${DateTime.now().millisecondsSinceEpoch}.wav';
+
+      await _audioRecorder.start(
+        const RecordConfig(encoder: AudioEncoder.wav, bitRate: 128000),
+        path: filePath,
+      );
+    }
   }
 
   void _showAttachmentOptions(BuildContext context) {
@@ -272,7 +336,11 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  ListTile _buildAttachmentOption(Icon icon, String title, VoidCallback onTap) {
+  ListTile _buildAttachmentOption(
+    Icon icon,
+    String title,
+    VoidCallback onTap,
+  ) {
     return ListTile(
       leading: icon,
       title: Text(title),
@@ -281,11 +349,11 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _sendPhoto() async {
-  await widget.controller.sendImage(widget.contact.id);
+    await widget.controller.sendImage(widget.contact.id);
   }
 
   Future<void> _sendDocuments() async {
-   await widget.controller.sendDocument(widget.contact.id);
+    await widget.controller.sendDocument(widget.contact.id);
   }
 
   Widget _image(String image) {
@@ -297,7 +365,7 @@ class _ChatPageState extends State<ChatPage> {
       child: CachedNetworkImage(
         imageUrl: image,
         progressIndicatorBuilder: (context, url, downloadProgress) =>
-          CircularProgressIndicator(value: downloadProgress.progress),
+            CircularProgressIndicator(value: downloadProgress.progress),
         errorWidget: (context, url, error) => const Icon(Icons.error),
       ),
     );
@@ -321,19 +389,16 @@ class _ChatPageState extends State<ChatPage> {
       setState(() {
         isLoading = true;
       });
-      //  DeviceFileSource source = DeviceFileSource(url);
       await audioPlayer.setSourceDeviceFile(url);
-       audioPlayer.resume();
-      //  audioPlayer.audioCache;      
-     
+      audioPlayer.resume();
+
       setState(() {
         audioPlayer.getDuration.call().then((value) => duration = value!);
         isPlaying = true;
-      });      
+      });
     }
 
     audioPlayer.onDurationChanged.listen((Duration d) {
-      print('Duration: $d');
       setState(() {
         duration = d;
         isLoading = false;
@@ -355,15 +420,15 @@ class _ChatPageState extends State<ChatPage> {
 
   void _changeSeek(double value) {
     setState(() {
-      audioPlayer.seek( Duration(seconds: value.toInt()));
+      audioPlayer.seek(Duration(seconds: value.toInt()));
     });
   }
 
   @override
   void dispose() {
     _videoPlayerController.dispose();
-   audioPlayer.dispose();
-   _audioRecorder.dispose();
+    audioPlayer.dispose();
+    _audioRecorder.dispose();
     super.dispose();
   }
 }

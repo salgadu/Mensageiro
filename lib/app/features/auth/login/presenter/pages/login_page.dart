@@ -4,102 +4,128 @@ import 'package:mensageiro/app/features/auth/login/presenter/pages/login_control
 
 class LoginPage extends StatefulWidget {
   final LoginController controller;
-  const LoginPage({super.key, required this.controller});
+
+  const LoginPage({Key? key, required this.controller}) : super(key: key);
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController phone = TextEditingController();
-  TextEditingController password = TextEditingController();
-  var number = MaskTextInputFormatter(
-      mask: '+55 (##) # ####-####',
-      filter: {"#": RegExp(r'[0-9]')},
-      type: MaskAutoCompletionType.lazy);
+  TextEditingController telefone = TextEditingController();
+  TextEditingController senha = TextEditingController();
+  var mascaraTelefone = MaskTextInputFormatter(
+    mask: '+55 (##) # ####-####',
+    filter: {"#": RegExp(r'[0-9]')},
+    type: MaskAutoCompletionType.lazy,
+  );
 
   @override
   Widget build(BuildContext context) {
-    return Builder(builder: (context) {
-      if (widget.controller.isLoading) {
-        return const Center(
-          child: Column(
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(
-                height: 15,
-              ),
-              Text('Realizando Login...')
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.grey,
           ),
-        );
-      }
-      if (widget.controller.isError) {
-        return Center(
-          child: Column(
-            children: [
-              Text(
-                  'Falha ao realizar login: ${widget.controller.messageError}'),
-              const SizedBox(
-                height: 15,
-              ),
-              ElevatedButton(
-                  onPressed: () => widget.controller.setError(false),
-                  child: const Text('Ok'))
-            ],
-          ),
-        );
-      }
-
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Login'),
-          centerTitle: true,
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
-        body: Container(
-          padding: const EdgeInsets.all(16),
+        title: Text('Login'),
+        centerTitle: true,
+      ),
+      body: Container(
+        padding: EdgeInsets.all(24.0),
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Texto informativo para o número de telefone
+              Text(
+                'Digite seu número de telefone',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              // Campo de entrada para o número de telefone
               TextFormField(
                 keyboardType: TextInputType.number,
-                controller: phone,
-                inputFormatters: [number],
-                decoration: const InputDecoration(
-                  labelText: 'Phone',
-                  border: OutlineInputBorder(),
+                controller: telefone,
+                inputFormatters: [mascaraTelefone],
+                style: TextStyle(
+                  fontFamily: 'Dylan Medium',
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
-              ),
-              const SizedBox(height: 20), // Increased spacing
-              TextFormField(
-                controller: password,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 20), // Increased spacing
-              ElevatedButton(
-                onPressed: () async {
-                  widget.controller.singIn(
-                      phone: phone.text.replaceAll(RegExp(r'[^0-9]'), ''),
-                      password: password.text);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6651F6), // Viber Purple
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 12.0,
+                    horizontal: 16.0,
                   ),
-                  minimumSize: const Size(200, 50), // Larger button size
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFFF7F5F7)),
+                  ),
                 ),
-                child: const Text('Login'),
               ),
+              SizedBox(height: 24.0),
+
+              // Texto informativo para a senha
+              Text(
+                'Digite sua senha',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              // Campo de entrada para a senha
+              TextFormField(
+                controller: senha,
+                obscureText: true,
+                style: TextStyle(
+                  fontFamily: 'Dylan Medium',
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 12.0,
+                    horizontal: 16.0,
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFFF7F5F7)),
+                  ),
+                ),
+              ),
+              SizedBox(height: 24.0),
             ],
           ),
         ),
-      );
-    });
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          widget.controller.singIn(
+            phone: telefone.text.replaceAll(RegExp(r'[^0-9]'), ''),
+            password: senha.text,
+          );
+        },
+        backgroundColor: Colors.black,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30.0),
+        ),
+        child: Icon(
+          Icons.arrow_forward_ios,
+          color: Colors.white,
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
   }
 }

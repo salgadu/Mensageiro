@@ -5,7 +5,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mensageiro/app/core/errors/errors.dart';
 import 'package:mensageiro/app/core/infra/file_acess/file_access.dart';
 import 'package:mensageiro/app/core/infra/file_acess/i_file_access.dart';
 import 'package:mensageiro/app/core/infra/notification/firebase_message_service.dart';
