@@ -50,14 +50,21 @@
 		<key>UIStatusBarHidden</key>
 		<false/>
 		<key>NSMicrophoneUsageDescription</key>
-		<string>Este aplicativo precisa do acesso ao microfone para gravar áudio.</string>
+			<string>This app requires access to the microphone for recording audio.</string>
+			
 		<key>NSPhotoLibraryUsageDescription</key>
-		<string>We need access to your photo library to save photos.</string>
+			<string>We need access to your photo library to save photos.</string>
+			
 		<key>NSPhotoLibraryAddUsageDescription</key>
-		<string>Este aplicativo precisa do acesso para salvar gravações de áudio.</string>
+			<string>This app requires access to save audio recordings.</string>
+			
 		<key>NSCameraUsageDescription</key>
-		<string>$(PRODUCT_NAME) Camera Usage!</string>
+			<string>$(PRODUCT_NAME) requires access to the camera.</string>
+			
 		<key>NSMicrophoneUsageDescription</key>
-		<string>$(PRODUCT_NAME) Microphone Usage!</string>
+			<string>$(PRODUCT_NAME) requires access to the microphone for audio recording.</string>
+			
+		<key>NSPhotoLibraryUsageDescription</key>
+			<string>This app requires access to your device's storage to save and manage files.</string>
 	</dict>
 </plist>
