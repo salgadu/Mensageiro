@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:dartz/dartz.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
@@ -25,7 +24,7 @@ class FileAccess implements IFileAccess {
           maxHeight: maxHeight);
 
       if (image == null) {
-        return Right(null);
+        return const Right(null);
       }
 
       final imageBytes = await image.readAsBytes();
@@ -48,7 +47,7 @@ class FileAccess implements IFileAccess {
           maxHeight: maxHeight);
 
       if (image == null) {
-        return Right(null);
+        return const Right(null);
       }
 
       final imageBytes = await image.readAsBytes();
@@ -70,7 +69,7 @@ class FileAccess implements IFileAccess {
           maxHeight: maxHeight);
 
       if (image == null) {
-        return Right(null);
+        return const Right(null);
       }
 
       final imageBytes = await image.readAsBytes();
@@ -92,7 +91,7 @@ class FileAccess implements IFileAccess {
           maxHeight: maxHeight);
 
       if (image == null) {
-        return Right(null);
+        return const Right(null);
       }
 
       return Right(image.path);
@@ -111,7 +110,7 @@ class FileAccess implements IFileAccess {
       );
 
       if (document == null) {
-        return Right(null);
+        return const Right(null);
       }
 
       return Right(document.files.first.bytes);
@@ -130,7 +129,7 @@ class FileAccess implements IFileAccess {
       );
 
       if (audio == null) {
-        return Right(null);
+        return const Right(null);
       }
 
       return Right(audio.files.first.bytes);

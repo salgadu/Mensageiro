@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:mensageiro/app/core/infra/call/signalling_service.dart';
 import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
 import 'package:mensageiro/app/features/home/chat/presenter/pages/chat_controller.dart';
+import 'package:mensageiro/app/features/home/chat/presenter/pages/pdf_view_page.dart';
 import 'package:mensageiro/app/features/home/contact/domain/entity/contact.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
@@ -119,6 +121,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _buildImageBubble(Chat message) {
     return BubbleNormalImage(
+       isSender: message.userId != widget.contact.id,
       id: message.id ?? message.timestamp,
       image: _image(message.message),
       color: Colors.transparent,
@@ -138,8 +141,22 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildDocumentMessage(Chat message) {
-    return ListTile(
-      title: Text("Document: ${message.message}"),
+    return FractionallySizedBox(
+
+      widthFactor: 0.6,
+      alignment:  message.userId != widget.contact.id ? Alignment.bottomRight: Alignment.bottomLeft,
+      child: Container(
+        margin: EdgeInsets.all(10),   
+        decoration: BoxDecoration(
+           color: Colors.grey.shade300,
+         borderRadius: BorderRadius.circular(5)      
+        ),        
+        child: ListTile(          
+          onTap:()=> Modular.to.push(MaterialPageRoute(builder: (context) => PdfViewPage(pdf: message.message,)),), 
+          title: const Text("Document"),
+           leading: const Icon(Icons.file_copy),
+        ),
+      ),
     );
   }
 

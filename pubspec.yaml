@@ -75,6 +75,7 @@ dependencies:
   universal_platform: ^1.0.0+1
   intl: ^0.18.1
   easy_rich_text: ^2.0.0
+  flutter_cached_pdfview: ^0.4.2
 
 dev_dependencies:
   flutter_test:
