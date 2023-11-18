@@ -13,7 +13,8 @@ class AppModule extends Module {
   @override
   void routes(r) {
     r.module('/', module: CoreModule());
-    r.child('/', child: (context) => const SplashScreen());
+    //r.child('/', child: (context) => const SplashScreen());
+    r.module('/', module: HomeModule());
     r.module('/auth', module: AuthModule());
     r.module('/home', module: HomeModule());
   }
