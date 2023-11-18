@@ -2,8 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:mensageiro/app/core/components/custom_divider.dart';
+import 'package:mensageiro/app/core/components/cutom_contact_card.dart';
+import 'package:mensageiro/app/core/components/page_title.dart';
+import 'package:mensageiro/app/core/components/rounded_item.dart';
+import 'package:mensageiro/app/core/components/svg_asset.dart';
+import 'package:mensageiro/app/core/components/text.dart';
+import 'package:mensageiro/app/core/components/title_textfield.dart';
+import 'package:mensageiro/app/core/constants/colors.dart';
+import 'package:mensageiro/app/core/constants/const.dart';
+import 'package:mensageiro/app/core/constants/fonts_sizes.dart';
 import 'package:mensageiro/app/core/widgets/drawer/custom_drawer.dart';
 import 'package:mensageiro/app/features/home/contact/presenter/pages/contacts_controller.dart';
 
@@ -50,9 +61,11 @@ class _HomeContactPageState extends State<HomeContactPage> {
         String newContactNumber = '';
 
         return AlertDialog(
-          title: const Text('Novo contato',
-          textAlign: TextAlign.center,),
-         
+          title: const Text(
+            'Novo contato',
+            textAlign: TextAlign.center,
+          ),
+
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -75,8 +88,7 @@ class _HomeContactPageState extends State<HomeContactPage> {
               SizedBox(height: 12),
             ],
           ),
-          
-          
+
           actions: [
             _buildElevatedButton(
               onPressed: () {
@@ -167,56 +179,207 @@ class _HomeContactPageState extends State<HomeContactPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: CustomDrawer(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _openAddContactDialog(context),
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0),
-        ),
-        child: const Icon(Icons.add, color: Colors.black),
-      ),
-      appBar: AppBar(
-        title: const Text('Contatos'),
-      ),
-      body: Observer(builder: (_) {
-        if (controller.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (controller.isError) {
-          return const Center(
-            child: Text('Erro ao carregar contatos'),
-          );
-        } else {
-          loadContact();
-          return ListView.builder(
-            itemCount: controller.listContacts?.length ?? 0,
-            itemBuilder: (_, index) {
-              final contact = controller.listContacts![index];
-              return ListTile(
-                onTap: () => Modular.to.pushNamed('/home/chat/', arguments: controller.listContacts![index]),
-                title: Text(contact.name),
-                subtitle: Text(contact.phone),
-                leading: CircleAvatar(
-                  backgroundImage: contact.photo?.isEmpty ?? true
-                      ? null
-                      : NetworkImage(
-                          contact.photo!,
+      backgroundColor: AppColors.white,
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () => _openAddContactDialog(context),
+      //   backgroundColor: Colors.white,
+      //   shape: RoundedRectangleBorder(
+      //     borderRadius: BorderRadius.circular(30.0),
+      //   ),
+      //   child: const Icon(Icons.add, color: Colors.black),
+      // ),
+
+      body: SafeArea(
+        child: Observer(builder: (_) {
+          if (controller.isLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (controller.isError) {
+            return const Center(
+              child: Text('Erro ao carregar contatos'),
+            );
+          } else {
+            loadContact();
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 40),
+                    color: Colors.white,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: AppConst.sidePadding),
+                      child: Row(
+                        children: [
+                          const PageTitle(
+                            title: 'Contatos',
+                            fontSize: AppFontSize.fz14,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  //ROUNDED ITEMS
+                  Container(
+                      color: AppColors.white,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: AppConst.sidePadding),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          RoundedItem(
+                            fontSize: AppFontSize.fz06,
+                            size: 60,
+                            icon: 'phone-dark.svg',
+                            title: 'Ligações',
+                            iconSize: 20,
+                          ),
+                          RoundedItem(
+                              fontSize: AppFontSize.fz06,
+                              size: 60,
+                              icon: 'helpdesk.svg',
+                              title: 'Chamadas',
+                              iconSize: 20),
+                          RoundedItem(
+                              fontSize: AppFontSize.fz06,
+                              size: 60,
+                              icon: 'chat-dark.svg',
+                              title: 'Conversas',
+                              iconSize: 20),
+                          RoundedItem(
+                              fontSize: AppFontSize.fz06,
+                              backgroundcolor: AppColors.black,
+                              size: 60,
+                              icon: 'contact-dark.svg',
+                              title: 'Contatos',
+                              iconColor: AppColors.white,
+                              iconSize: 20),
+                        ],
+                      )),
+
+                  //BUSCAR CONTATO
+                  Container(
+                    color: AppColors.newGrey,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: AppConst.sidePadding, vertical: 20),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 6),
+                      decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.circular(50)),
+                      child: Row(
+                        children: [
+                          const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: AppSvgAsset(
+                              image: 'search.svg',
+                              color: AppColors.grey,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: TitleTextField(
+                              hintText: 'Buscar',
+                              borderColor: Colors.transparent,
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () => _openAddContactDialog(context),
+                            child: const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: AppSvgAsset(
+                                image: 'add-user.svg',
+                                color: AppColors.black,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  //FILTROS
+                  Container(
+                    color: AppColors.newGrey,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppConst.sidePadding * 2,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        AppText(
+                          text: 'TODOS',
+                          fontSize: AppFontSize.fz05,
+                          fontWeight: 'medium',
+                          letterSpacing: 1.5,
+                          color: AppColors.darkBlue,
                         ),
-                  child: contact.photo?.isEmpty ?? true
-                      ? Text(
-                          contact.name.substring(0, 1),
-                          style: GoogleFonts.spaceGrotesk()
-                              .copyWith(fontSize: 25, color: Colors.white),
-                        )
-                      : null,
-                ),
-              );
-            },
-          );
-        }
-      }),
+                        AppText(
+                          text: 'CLIENTES',
+                          fontSize: AppFontSize.fz05,
+                          fontWeight: 'medium',
+                          letterSpacing: 1.5,
+                          color: AppColors.grey,
+                        ),
+                        AppText(
+                          text: 'EXECUTIVO',
+                          fontSize: AppFontSize.fz05,
+                          fontWeight: 'medium',
+                          letterSpacing: 1.5,
+                          color: AppColors.grey,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  //LISTA DE CONTATOS
+                  Container(
+                    color: AppColors.newGrey,
+                    // height: MediaQuery.of(context).size.height,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: AppConst.sidePadding, vertical: 20),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 20.0,
+                        horizontal: 10.0,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(45),
+                        color: AppColors.white,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ...controller.listContacts!.map((contact) {
+                            return Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              child: InkWell(
+                                onTap: () => Modular.to.pushNamed('/home/chat/',
+                                    arguments: contact),
+                                child: CustomContactCard(
+                                    icon: 'profile.svg',
+                                    color: AppColors.grey,
+                                    title: contact.name),
+                              ),
+                            );
+                          })
+                        ],
+                      ),
+                    ),
+                  ),
+                  // const SizedBox(height: 100)
+                ],
+              ),
+            );
+          }
+        }),
+      ),
     );
   }
 }

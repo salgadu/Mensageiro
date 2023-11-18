@@ -1,4 +1,4 @@
-import 'package:mensageiro/app/core/utils/screen_helper.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -20,8 +20,8 @@ class AppSvgAsset extends StatelessWidget {
   Widget build(BuildContext context) {
     return SvgPicture.asset(
       'assets/icons/$image',
-      width: ScreenHelper.doubleWidth(imageW),
-      height: ScreenHelper.doubleHeight(imageH),
+      width: imageW,
+      height: imageH,
       color: color,
     );
   }

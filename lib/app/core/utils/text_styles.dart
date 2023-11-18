@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:mensageiro/app/core/constants/fonts_sizes.dart';
-import 'package:mensageiro/app/core/utils/screen_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -36,10 +35,7 @@ TextStyle textStyle({
     inherit: inherit,
     color: color,
     backgroundColor: backgroundColor,
-    fontSize: (ScreenHelper.isMobile &&
-            (UniversalPlatform.isAndroid || UniversalPlatform.isIOS))
-        ? fontSize.sp
-        : fontSize,
+    fontSize: fontSize,
     fontStyle: fontStyle,
     letterSpacing: letterSpacing,
     wordSpacing: wordSpacing,

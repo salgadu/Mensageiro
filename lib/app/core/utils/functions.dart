@@ -10,7 +10,6 @@ import 'package:mensageiro/app/core/components/svg_asset.dart';
 import 'package:mensageiro/app/core/components/text.dart';
 import 'package:mensageiro/app/core/constants/colors.dart';
 import 'package:mensageiro/app/core/constants/fonts_sizes.dart';
-import 'package:mensageiro/app/core/utils/screen_helper.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
@@ -42,9 +41,9 @@ Future<void> showSnackbarError(String text) async {
       snackPosition: SnackPosition.TOP,
       maxWidth: 450,
       margin: EdgeInsets.only(
-        top: ScreenHelper.doubleHeight(50),
-        left: ScreenHelper.doubleHeight(ScreenHelper.isMobile ? 25 : 0),
-        right: ScreenHelper.doubleHeight(ScreenHelper.isMobile ? 25 : 0),
+        top: 50,
+        left: 25,
+        right: 25,
       ),
       messageText: const SizedBox(),
       backgroundColor: Colors.transparent,
@@ -73,7 +72,7 @@ Future<void> showSnackbarError(String text) async {
               image: 'warning.svg',
               color: Color(0xFFec4444),
             ),
-            SizedBox(width: ScreenHelper.doubleWidth(20)),
+            SizedBox(width: 20),
             Expanded(
               child: AppText(
                 text: text,
@@ -81,7 +80,7 @@ Future<void> showSnackbarError(String text) async {
                 maxLines: 4,
               ),
             ),
-            SizedBox(width: ScreenHelper.doubleWidth(20)),
+            SizedBox(width: 20),
             InkWell(
               onTap: () async => await Get.closeCurrentSnackbar(),
               child: const Padding(
@@ -111,20 +110,20 @@ Future<void> showSnackbarMessage(String text) async {
       snackPosition: SnackPosition.TOP,
       maxWidth: 450,
       margin: EdgeInsets.only(
-        top: ScreenHelper.doubleHeight(50),
-        left: ScreenHelper.doubleHeight(20),
-        right: ScreenHelper.doubleHeight(20),
+        top: 50,
+        left: 20,
+        right: 20,
       ),
       titleText: Row(
         children: [
           AppSvgAsset(
             image: "exclamation.svg",
             color: AppColors.black,
-            imageH: ScreenHelper.doubleWidth(35),
-            imageW: ScreenHelper.doubleWidth(35),
+            imageH: 35,
+            imageW: 35,
           ),
           SizedBox(
-            width: ScreenHelper.doubleWidth(15),
+            width: 15,
           ),
           Expanded(
             child: AppText(
@@ -143,8 +142,8 @@ Future<void> showSnackbarMessage(String text) async {
             child: AppSvgAsset(
               image: "close.svg",
               color: AppColors.black,
-              imageH: ScreenHelper.doubleWidth(30),
-              imageW: ScreenHelper.doubleWidth(30),
+              imageH: 30,
+              imageW: 30,
             ),
           ),
         ],

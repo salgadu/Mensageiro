@@ -1,6 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:mensageiro/app/core/components/cutom_contact_card.dart';
+import 'package:mensageiro/app/core/components/svg_asset.dart';
+import 'package:mensageiro/app/core/components/title_textfield.dart';
+import 'package:mensageiro/app/core/constants/colors.dart';
+import 'package:mensageiro/app/core/constants/const.dart';
 import 'package:mensageiro/app/core/infra/call/signalling_service.dart';
 import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
 import 'package:mensageiro/app/features/home/chat/presenter/pages/chat_controller.dart';
@@ -48,56 +53,100 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.contact.name),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.call),
-            onPressed: _startVideoCall,
-          ),
-        ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeaderComposer(context),
+            Expanded(
+              child: StreamBuilder<List<Chat>>(
+                stream: widget.controller.messages(widget.contact.id),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Stack(
+                      children: [_buildMessagesList(snapshot.data!)],
+                    );
+                  } else if (snapshot.hasError) {
+                    return Text("Error: ${snapshot.error}");
+                  } else {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                },
+              ),
+            ),
+            _buildMessageComposer(context),
+          ],
+        ),
       ),
-      body: Column(
+    );
+  }
+
+  Widget _buildHeaderComposer(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: AppConst.sidePadding),
+      child: Row(
         children: <Widget>[
           Expanded(
-            child: StreamBuilder<List<Chat>>(
-              stream: widget.controller.messages(widget.contact.id),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return Stack(
-                    children: [_buildMessagesList(snapshot.data!)],
-                  );
-                } else if (snapshot.hasError) {
-                  return Text("Error: ${snapshot.error}");
-                } else {
-                  return CircularProgressIndicator();
-                }
-              },
+            child: Container(
+              child: Row(
+                children: <Widget>[
+                  InkWell(
+                    onTap: () {
+                      Modular.to.pop();
+                    },
+                    child: AppSvgAsset(
+                      image: 'back.svg',
+                      color: AppColors.black,
+                      imageH: 20,
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: CustomContactCard(
+                      icon: 'profile.svg',
+                      subtitle: 'Online',
+                      subtitleColor: AppColors.grey,
+                      color: AppColors.grey,
+                      title: widget.contact.name,
+                    ),
+                  ),
+                  AppSvgAsset(
+                    image: 'video.svg',
+                    color: AppColors.black,
+                    imageH: 16,
+                  ),
+                  SizedBox(width: 20),
+                  AppSvgAsset(
+                      image: 'phone.svg', color: AppColors.black, imageH: 20),
+                ],
+              ),
             ),
           ),
-          _buildMessageComposer(context),
         ],
       ),
     );
   }
 
   Widget _buildMessagesList(List<Chat> messages) {
-    return ListView.builder(
-      reverse: true,
-      itemCount: messages.length,
-      itemBuilder: (context, index) {
-        final message = messages[index];
-        if (message.typeMessage == 'A') {
-          return _buildAudioBubble(message);
-        } else if (message.typeMessage == 'P') {
-          return _buildImageBubble(message);
-        } else if (message.typeMessage == 'V') {
-          return _buildVideoMessage(message);
-        } else if (message.typeMessage == 'D') {
-          return _buildDocumentMessage(message);
-        }
-        return _buildTextBubble(message);
-      },
+    return Padding(
+      padding: EdgeInsets.symmetric(
+          horizontal: AppConst.sidePadding - 10, vertical: 20),
+      child: ListView.builder(
+        reverse: true,
+        itemCount: messages.length,
+        itemBuilder: (context, index) {
+          final message = messages[index];
+          if (message.typeMessage == 'A') {
+            return _buildAudioBubble(message);
+          } else if (message.typeMessage == 'P') {
+            return _buildImageBubble(message);
+          } else if (message.typeMessage == 'V') {
+            return _buildVideoMessage(message);
+          } else if (message.typeMessage == 'D') {
+            return _buildDocumentMessage(message);
+          }
+          return _buildTextBubble(message);
+        },
+      ),
     );
   }
 
@@ -121,7 +170,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _buildImageBubble(Chat message) {
     return BubbleNormalImage(
-       isSender: message.userId != widget.contact.id,
+      isSender: message.userId != widget.contact.id,
       id: message.id ?? message.timestamp,
       image: _image(message.message),
       color: Colors.transparent,
@@ -142,19 +191,24 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _buildDocumentMessage(Chat message) {
     return FractionallySizedBox(
-
       widthFactor: 0.6,
-      alignment:  message.userId != widget.contact.id ? Alignment.bottomRight: Alignment.bottomLeft,
+      alignment: message.userId != widget.contact.id
+          ? Alignment.bottomRight
+          : Alignment.bottomLeft,
       child: Container(
-        margin: EdgeInsets.all(10),   
+        margin: EdgeInsets.all(10),
         decoration: BoxDecoration(
-           color: Colors.grey.shade300,
-         borderRadius: BorderRadius.circular(5)      
-        ),        
-        child: ListTile(          
-          onTap:()=> Modular.to.push(MaterialPageRoute(builder: (context) => PdfViewPage(pdf: message.message,)),), 
+            color: Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(5)),
+        child: ListTile(
+          onTap: () => Modular.to.push(
+            MaterialPageRoute(
+                builder: (context) => PdfViewPage(
+                      pdf: message.message,
+                    )),
+          ),
           title: const Text("Document"),
-           leading: const Icon(Icons.file_copy),
+          leading: const Icon(Icons.file_copy),
         ),
       ),
     );
@@ -176,38 +230,93 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _buildMessageComposer(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8.0),
+      padding: EdgeInsets.symmetric(horizontal: AppConst.sidePadding),
       child: Row(
         children: <Widget>[
           Expanded(
             child: Container(
-              margin: const EdgeInsets.only(right: 8.0),
+              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20.0),
-                color: Colors.grey[300],
-              ),
+                  color: AppColors.lightGrey,
+                  borderRadius: BorderRadius.circular(50)),
               child: Row(
-                children: <Widget>[
-                  _buildAttachmentButton(context),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: TextField(
-                        controller: _messageController,
-                        decoration: const InputDecoration(
-                          hintText: 'Digite uma mensagem...',
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(10.0),
-                        ),
+                children: [
+                  InkWell(
+                    onTap: () {
+                      _showAttachmentOptions(context);
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14.0),
+                        color: AppColors.black,
+                      ),
+                      padding: EdgeInsets.all(10),
+                      child: AppSvgAsset(
+                        image: 'add.svg',
+                        imageH: 16,
+                        color: AppColors.white,
                       ),
                     ),
                   ),
-                  _buildSendButton(),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TitleTextField(
+                      hintText: 'Digite uma mensagem...',
+                      borderColor: Colors.transparent,
+                    ),
+                  ),
+                  InkWell(
+                    child: const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: AppSvgAsset(
+                        image: 'emotion.svg',
+                        color: AppColors.grey,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  InkWell(
+                    child: const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: AppSvgAsset(
+                        image: 'camera.svg',
+                        color: AppColors.grey,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        _isPressed = true;
+                        _recordAudio();
+                      });
+                    },
+                    onLongPress: () {
+                      setState(() {
+                        _isPressed = false;
+                        _recordAudioStop();
+                      });
+                    },
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: AppSvgAsset(
+                        image: 'record.svg',
+                        color: _isPressed ? AppColors.black : AppColors.grey,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-          ),
-          _buildMicButton(),
+          )
         ],
       ),
     );
@@ -304,8 +413,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> _recordAudio() async {
     if (await _audioRecorder.hasPermission()) {
-      String directoryPath =
-          (await getApplicationDocumentsDirectory()).path;
+      String directoryPath = (await getApplicationDocumentsDirectory()).path;
       Directory('$directoryPath/audio/').createSync(recursive: true);
       String filePath =
           '$directoryPath${DateTime.now().millisecondsSinceEpoch}.wav';
