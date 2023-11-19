@@ -43,11 +43,13 @@ class _ChatPageState extends State<ChatPage> {
   bool isPause = false;
   AudioRecorder _audioRecorder = AudioRecorder();
   bool _isPressed = false;
+  bool _isTextEmpty = true;
 
   @override
   void initState() {
     super.initState();
     _videoPlayerController = VideoPlayerController.network('');
+    _messageController.addListener(_onTextChanged);
   }
 
   @override
@@ -135,7 +137,6 @@ class _ChatPageState extends State<ChatPage> {
         itemCount: messages.length,
         itemBuilder: (context, index) {
           final message = messages[index];
-
           if (message.typeMessage == 'A') {
             return _buildAudioBubble(message);
           } else if (message.typeMessage == 'P') {
@@ -145,7 +146,6 @@ class _ChatPageState extends State<ChatPage> {
           } else if (message.typeMessage == 'D') {
             return _buildDocumentMessage(message);
           }
-
           return _buildTextBubble(message);
         },
       ),
@@ -239,8 +239,9 @@ class _ChatPageState extends State<ChatPage> {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
               decoration: BoxDecoration(
-                  color: AppColors.lightGrey,
-                  borderRadius: BorderRadius.circular(50)),
+                color: AppColors.lightGrey,
+                borderRadius: BorderRadius.circular(50),
+              ),
               child: Row(
                 children: [
                   InkWell(
@@ -268,67 +269,58 @@ class _ChatPageState extends State<ChatPage> {
                       borderColor: Colors.transparent,
                     ),
                   ),
-                  Builder(
-                    builder: (context) {
-                      if (_messageController.text.isEmpty) {
-                        return Row(
-                          children: [
-                            InkWell(
-                              child: const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: AppSvgAsset(
-                                  image: 'emotion.svg',
-                                  color: AppColors.grey,
-                                ),
-                              ),
+                  _isTextEmpty
+                      ? InkWell(
+                          onTap: () {
+                            setState(() {
+                              _isPressed = true;
+                              _recordAudio();
+                            });
+                          },
+                          onLongPress: () {
+                            setState(() {
+                              _isPressed = false;
+                              _recordAudioStop();
+                            });
+                          },
+                          child: _buildMicButton(),
+                        )
+                      : SizedBox(), // Empty SizedBox when text is not empty
+                  _isTextEmpty
+                      ? InkWell(
+                          child: const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: AppSvgAsset(
+                              image: 'emotion.svg',
+                              color: AppColors.grey,
                             ),
-                            const SizedBox(
-                              width: 15,
+                          ),
+                        )
+                      : InkWell(
+                          child: const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: AppSvgAsset(
+                              image:
+                                  'send.svg', // assuming 'send.svg' is your send button icon
+                              color: AppColors.grey,
                             ),
-                            InkWell(
-                              child: const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: AppSvgAsset(
-                                  image: 'camera.svg',
-                                  color: AppColors.grey,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 15,
-                            ),
-                            InkWell(
-                              onTap: () {
-                                setState(() {
-                                  _isPressed = true;
-                                  _recordAudio();
-                                });
-                              },
-                              onLongPress: () {
-                                setState(() {
-                                  _isPressed = false;
-                                  _recordAudioStop();
-                                });
-                              },
-                              child: SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: AppSvgAsset(
-                                  image: 'record.svg',
-                                  color: _isPressed
-                                      ? AppColors.black
-                                      : AppColors.grey,
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      } else {
-                        return _buildSendButton();
-                      }
-                    },
+                          ),
+                          onTap: () {
+                            _sendMessage(_messageController.text);
+                          },
+                        ),
+                  const SizedBox(width: 15),
+                  InkWell(
+                    child: const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: AppSvgAsset(
+                        image: 'camera.svg',
+                        color: AppColors.grey,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -337,6 +329,12 @@ class _ChatPageState extends State<ChatPage> {
         ],
       ),
     );
+  }
+
+  void _onTextChanged() {
+    setState(() {
+      _isTextEmpty = _messageController.text.isEmpty;
+    });
   }
 
   Widget _buildAttachmentButton(BuildContext context) {
@@ -376,14 +374,20 @@ class _ChatPageState extends State<ChatPage> {
       child: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: _isPressed ? Colors.red : Colors.grey[300],
+          color: _isPressed ? Colors.red : Colors.transparent,
         ),
         padding: const EdgeInsets.all(12.0),
-        child: Icon(
-          Icons.mic,
-          color: _isPressed ? Colors.white : Colors.black,
-          size: _isPressed ? 32 : 28,
-        ),
+        child: _isPressed
+            ? AppSvgAsset(
+                image: 'record.svg',
+                color: AppColors.white,
+                imageH: 24, // Adjusted to 24px
+              )
+            : AppSvgAsset(
+                image: 'record.svg',
+                color: AppColors.grey,
+                imageH: 24, // Adjusted to 24px
+              ),
       ),
       onLongPress: () {
         setState(() {
