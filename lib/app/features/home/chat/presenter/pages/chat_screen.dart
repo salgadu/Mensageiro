@@ -135,6 +135,7 @@ class _ChatPageState extends State<ChatPage> {
         itemCount: messages.length,
         itemBuilder: (context, index) {
           final message = messages[index];
+
           if (message.typeMessage == 'A') {
             return _buildAudioBubble(message);
           } else if (message.typeMessage == 'P') {
@@ -144,6 +145,7 @@ class _ChatPageState extends State<ChatPage> {
           } else if (message.typeMessage == 'D') {
             return _buildDocumentMessage(message);
           }
+
           return _buildTextBubble(message);
         },
       ),
@@ -261,57 +263,72 @@ class _ChatPageState extends State<ChatPage> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: TitleTextField(
+                      controller: _messageController,
                       hintText: 'Digite uma mensagem...',
                       borderColor: Colors.transparent,
                     ),
                   ),
-                  InkWell(
-                    child: const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: AppSvgAsset(
-                        image: 'emotion.svg',
-                        color: AppColors.grey,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 15,
-                  ),
-                  InkWell(
-                    child: const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: AppSvgAsset(
-                        image: 'camera.svg',
-                        color: AppColors.grey,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 15,
-                  ),
-                  InkWell(
-                    onTap: () {
-                      setState(() {
-                        _isPressed = true;
-                        _recordAudio();
-                      });
+                  Builder(
+                    builder: (context) {
+                      if (_messageController.text.isEmpty) {
+                        return Row(
+                          children: [
+                            InkWell(
+                              child: const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: AppSvgAsset(
+                                  image: 'emotion.svg',
+                                  color: AppColors.grey,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 15,
+                            ),
+                            InkWell(
+                              child: const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: AppSvgAsset(
+                                  image: 'camera.svg',
+                                  color: AppColors.grey,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 15,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _isPressed = true;
+                                  _recordAudio();
+                                });
+                              },
+                              onLongPress: () {
+                                setState(() {
+                                  _isPressed = false;
+                                  _recordAudioStop();
+                                });
+                              },
+                              child: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: AppSvgAsset(
+                                  image: 'record.svg',
+                                  color: _isPressed
+                                      ? AppColors.black
+                                      : AppColors.grey,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return _buildSendButton();
+                      }
                     },
-                    onLongPress: () {
-                      setState(() {
-                        _isPressed = false;
-                        _recordAudioStop();
-                      });
-                    },
-                    child: SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: AppSvgAsset(
-                        image: 'record.svg',
-                        color: _isPressed ? AppColors.black : AppColors.grey,
-                      ),
-                    ),
                   ),
                 ],
               ),
