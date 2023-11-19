@@ -26,7 +26,7 @@ class LoginModule extends Module {
   void routes(r) {
     r.child('/',
         child: (context) => LoginPage(
-              controller: Modular.get(),
+              controller: Modular.get<LoginController>(),
             ));
   }
 }

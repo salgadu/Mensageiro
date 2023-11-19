@@ -13,13 +13,21 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  late AuthStore authStore = Modular.get<AuthStore>();
+  late final AuthStore authStore; 
   @override
-  void initState() {
-    authStore.authLogin().then((value) => value);
+  void initState() {   
     super.initState();
+    authStore = Modular.get<AuthStore>();     
     initializeFirebaseMessaging();
     checkNotifications();
+    initAutoLogin();
+  }
+
+  initAutoLogin() async {
+    await authStore.authLogin();
+    if(authStore.authStatus == null) {
+      Modular.to.pushReplacementNamed('/home/');
+    }
   }
 
   initializeFirebaseMessaging() async {

@@ -41,7 +41,6 @@ class FireBaseRepositoryDataSourceImpl implements ILoginDatasource {
     } catch (e) {
       throw ServerException(
           message: 'Erro Innterno, por favor tente novamente mais tarde!');
-    }
-    return null;
+    }   
   }
 }

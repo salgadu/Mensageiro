@@ -19,6 +19,9 @@ abstract class RegisterControllerBase with Store {
   bool isLoading = false;
 
   @observable
+  String messageError = '';
+
+  @observable
   bool isError = false;
 
   @action
@@ -27,6 +30,8 @@ abstract class RegisterControllerBase with Store {
   @action
   setError(bool value) => isError = value;
 
+  setMessageError(String value) => messageError = value;
+
   Future<void> registerUser({required RegisterAuth data}) async {
     setLoadind(true);
     setError(false);
@@ -34,6 +39,7 @@ abstract class RegisterControllerBase with Store {
     result.fold((error) {
       setLoadind(false);
       setError(true);
+      setMessageError(error.message);
     }, (user) {
       setLoadind(false);
       authStore.setUser(user);

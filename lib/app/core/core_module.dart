@@ -13,8 +13,7 @@ import 'package:mensageiro/app/core/store/auth/auth_store.dart';
 
 class CoreModule extends Module {
   @override
-  void binds(i) {
-    i.addSingleton<AuthStore>(AuthStore.new);
+  void binds(i) {   
     i.addInstance<FirebaseAuth>(FirebaseAuth.instance);
     i.addInstance<FirebaseFirestore>(FirebaseFirestore.instance);
     i.addInstance<FirebaseMessaging>(FirebaseMessaging.instance);
@@ -22,7 +21,8 @@ class CoreModule extends Module {
     i.addInstance(NotificationService());
     i.addInstance<ImagePicker>(ImagePicker());
     i.addInstance<FilePicker>(FilePicker.platform);
-    i.add(FirebaseMessageService.new);
-    i.add<IFileAccess>(FileAccess.new);
+    i.addSingleton(FirebaseMessageService.new);
+    i.addSingleton<IFileAccess>(FileAccess.new);
+    i.addSingleton<AuthStore>(AuthStore.new);
   }
 }

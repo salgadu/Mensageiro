@@ -60,7 +60,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Erro no registro'),
+                   Text('Error: ${controller.messageError}'),
                   const SizedBox(height: 15),
                   FloatingActionButton(
                     onPressed: () => controller.setError(false),

@@ -36,14 +36,21 @@ abstract class LoginControllerBase with Store {
     setError(false);
     final result = await login(phone: phone, password: password);
     result.fold((error) {
-      setMessageError(error.message);
-      setError(true);
+      setLoadind(false);
+       setError(true);
+      setMessageError(error.message); 
+      return;    
     }, (user) {
       if (user != null) {
         setLoadind(false);
         authStore.setUser(user);
         authStore.setAuthStatus(AuthStatus.Authenticated);
+        return;
       }
+       setLoadind(false);
+       setError(true);
+      setMessageError('Usuario ou senha incorretos'); 
+      return;
     });
   }
 }

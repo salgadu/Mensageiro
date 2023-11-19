@@ -17,7 +17,6 @@ abstract class AuthStoreBase with Store {
   final FirebaseMessageService firebaseMessageService;
 
   AuthStoreBase(this.firebase, this.firestore, this.firebaseMessageService) {
-    // when((_) => authStatus == null, () async => await authLogin());
     reaction((_) => authStatus, (_) {
       switch (authStatus) {
         case AuthStatus.Authenticated:
@@ -59,17 +58,24 @@ abstract class AuthStoreBase with Store {
                 .update({'token': token});
             setAuthStatus(AuthStatus.Authenticated);
             return;
+          }else{
+             await firebase.signOut();
+            setAuthStatus(AuthStatus.Unauteticated);
+            return;
           }
-        }
-        setAuthStatus(AuthStatus.Unauteticated);
-        return;
+        }else{
+           await firebase.signOut();
+          setAuthStatus(AuthStatus.Unauteticated);
+          return;
+        }   
+        
       });
+       
     } catch (e) {
       await firebase.signOut();
-      setAuthStatus(AuthStatus.Unauteticated);
-      setUser(null);
+      setAuthStatus(AuthStatus.Unauteticated);      
       return;
-    }
+    }    
   }
 
   Future<void> signOut() async {
