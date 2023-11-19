@@ -48,7 +48,6 @@ abstract class AuthStoreBase with Store {
         if (user != null) {
           final phone = user.email!.split('@')[0];
           final data = await firestore.collection('users').doc(phone).get();
-
           if (data.data() != null) {
             final token = await firebaseMessageService.getDeviceFirebaseToken();
             setUser(LoggedUserModel.fromMap(data.data()!));

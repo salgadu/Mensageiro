@@ -57,6 +57,22 @@ mixin _$ContactsController on ContactsControllerBase, Store {
     });
   }
 
+  late final _$filterContactsAtom =
+      Atom(name: 'ContactsControllerBase.filterContacts', context: context);
+
+  @override
+  List<Contact> get filterContacts {
+    _$filterContactsAtom.reportRead();
+    return super.filterContacts;
+  }
+
+  @override
+  set filterContacts(List<Contact> value) {
+    _$filterContactsAtom.reportWrite(value, super.filterContacts, () {
+      super.filterContacts = value;
+    });
+  }
+
   late final _$ContactsControllerBaseActionController =
       ActionController(name: 'ContactsControllerBase', context: context);
 
@@ -94,11 +110,23 @@ mixin _$ContactsController on ContactsControllerBase, Store {
   }
 
   @override
+  dynamic setFilterContacts(List<Contact> value) {
+    final _$actionInfo = _$ContactsControllerBaseActionController.startAction(
+        name: 'ContactsControllerBase.setFilterContacts');
+    try {
+      return super.setFilterContacts(value);
+    } finally {
+      _$ContactsControllerBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 isLoading: ${isLoading},
 isError: ${isError},
-listContacts: ${listContacts}
+listContacts: ${listContacts},
+filterContacts: ${filterContacts}
     ''';
   }
 }

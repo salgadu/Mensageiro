@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:398647625357:android:873196c4bd1cba475604c4",
+        "android_client_info": {
+          "package_name": "com.allinsys.chat.test"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpMT_xu349L5aBz9-IiPosb94x_envsVY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:398647625357:android:70729ed67dd44c6f5604c4",
         "android_client_info": {
           "package_name": "com.example.mensageiro"

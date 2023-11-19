@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:get/get.dart';
 import 'package:mensageiro/app/core/components/cutom_contact_card.dart';
 import 'package:mensageiro/app/core/components/svg_asset.dart';
 import 'package:mensageiro/app/core/components/title_textfield.dart';
@@ -205,7 +206,7 @@ class _ChatPageState extends State<ChatPage> {
         child: ListTile(
           onTap: () => Modular.to.push(
             MaterialPageRoute(
-                builder: (context) => PdfViewPage(
+                builder: (context) => PdfViewPage( 
                       pdf: message.message,
                     )),
           ),
@@ -245,8 +246,8 @@ class _ChatPageState extends State<ChatPage> {
               child: Row(
                 children: [
                   InkWell(
-                    onTap: () {
-                      _showAttachmentOptions(context);
+                    onTap: ()async {
+                      await _showAttachmentOptions(context);                   
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -313,6 +314,9 @@ class _ChatPageState extends State<ChatPage> {
                         ),
                   const SizedBox(width: 15),
                   InkWell(
+                    onTap: ()async{
+                      await widget.controller.sendImage(widget.contact.id,input: true);
+                    },
                     child: const SizedBox(
                       width: 24,
                       height: 24,
@@ -346,8 +350,9 @@ class _ChatPageState extends State<ChatPage> {
       ),
       child: IconButton(
         icon: Icon(Icons.add, color: Colors.white),
-        onPressed: () {
-          _showAttachmentOptions(context);
+        onPressed: () async{
+          await _showAttachmentOptions(context);
+          Navigator.of(context).pop();
         },
       ),
     );
@@ -381,7 +386,7 @@ class _ChatPageState extends State<ChatPage> {
             ? AppSvgAsset(
                 image: 'record.svg',
                 color: AppColors.white,
-                imageH: 24, // Adjusted to 24px
+                imageH: 30, // Adjusted to 24px
               )
             : AppSvgAsset(
                 image: 'record.svg',
@@ -446,8 +451,8 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _showAttachmentOptions(BuildContext context) {
-    showModalBottomSheet(
+  Future<void> _showAttachmentOptions(BuildContext context) {
+   return showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
         return Container(
@@ -459,20 +464,22 @@ class _ChatPageState extends State<ChatPage> {
                 'Fotos',
                 () {
                   _sendPhoto();
+                   Navigator.of(context).pop();
                 },
               ),
-              _buildAttachmentOption(
-                Icon(Icons.videocam),
-                'Vídeos',
-                () {
-                  // _sendVideo();
-                },
-              ),
+              // _buildAttachmentOption(
+              //   Icon(Icons.videocam),
+              //   'Vídeos',
+              //   () {
+              //     // _sendVideo();
+              //   },
+              // ),
               _buildAttachmentOption(
                 Icon(Icons.insert_drive_file),
                 'Documentos',
                 () {
                   _sendDocuments();
+                   Navigator.of(context).pop();
                 },
               ),
             ],

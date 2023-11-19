@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:file_picker/file_picker.dart';
@@ -31,7 +32,8 @@ class FileAccess implements IFileAccess {
       String base64String = base64Encode(imageBytes);
       return Right(base64String);
     } catch (e) {
-      return Left(FileException(message: 'Erro interno, por favor, tente mais tarde'));
+      return Left(
+          FileException(message: 'Erro interno, por favor, tente mais tarde'));
     }
   }
 
@@ -54,7 +56,8 @@ class FileAccess implements IFileAccess {
       String base64String = base64Encode(Uint8List.fromList(imageBytes));
       return Right(base64String);
     } catch (e) {
-      return Left(FileException(message: 'Erro interno, por favor, tente mais tarde'));
+      return Left(
+          FileException(message: 'Erro interno, por favor, tente mais tarde'));
     }
   }
 
@@ -76,7 +79,8 @@ class FileAccess implements IFileAccess {
       String base64String = base64Encode(Uint8List.fromList(imageBytes));
       return Right(base64String);
     } catch (e) {
-      return Left(FileException(message: 'Erro interno, por favor, tente mais tarde'));
+      return Left(
+          FileException(message: 'Erro interno, por favor, tente mais tarde'));
     }
   }
 
@@ -96,7 +100,8 @@ class FileAccess implements IFileAccess {
 
       return Right(image.path);
     } catch (e) {
-      return Left(FileException(message: 'Erro interno, por favor, tente mais tarde'));
+      return Left(
+          FileException(message: 'Erro interno, por favor, tente mais tarde'));
     }
   }
 
@@ -104,18 +109,23 @@ class FileAccess implements IFileAccess {
   Future<Either<Failure, Uint8List?>> pickDocument() async {
     try {
       final document = await _filePicker.pickFiles(
-        type: FileType.custom,
-        allowMultiple: false,
-        allowedExtensions: ['pdf', 'doc']
-      );
+          type: FileType.custom,
+          allowMultiple: false,
+          allowedExtensions: ['pdf']);
 
-      if (document == null) {
+      if (document?.files.first.path == null) {
         return const Right(null);
       }
 
-      return Right(document.files.first.bytes);
+      File file = File(document!.files.first.path!);
+      List<int> bytes = await file.readAsBytes();
+
+      final doc = Uint8List.fromList(bytes);
+
+      return Right(doc);
     } catch (e) {
-      return Left(FileException(message: 'Erro interno, por favor, tente mais tarde'));
+      return Left(
+          FileException(message: 'Erro interno, por favor, tente mais tarde'));
     }
   }
 
@@ -123,7 +133,6 @@ class FileAccess implements IFileAccess {
   Future<Either<Failure, Uint8List?>> pickAudio() async {
     try {
       final audio = await _filePicker.pickFiles(
-        
         type: FileType.audio,
         allowMultiple: false,
       );
@@ -134,10 +143,11 @@ class FileAccess implements IFileAccess {
 
       return Right(audio.files.first.bytes);
     } catch (e) {
-      return Left(FileException(message: 'Erro interno, por favor, tente mais tarde'));
+      return Left(
+          FileException(message: 'Erro interno, por favor, tente mais tarde'));
     }
   }
-  
+
   @override
   Future<Either<Failure, String?>> document() {
     throw UnimplementedError();

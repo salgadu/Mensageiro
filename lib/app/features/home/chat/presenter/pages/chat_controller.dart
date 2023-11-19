@@ -26,7 +26,8 @@ abstract class ChatControllerBase with Store {
   final ISendDocument sendDocuments;
   final AuthStore _authStore = Modular.get<AuthStore>();
 
-  ChatControllerBase(this.sendMessages, this.getMessage, this.sendAudios, this.sendImages, this.sendDocuments, this.fileAccess);
+  ChatControllerBase(this.sendMessages, this.getMessage, this.sendAudios,
+      this.sendImages, this.sendDocuments, this.fileAccess);
 
   Future sendMessage(String id, Chat message) async {
     message.userId = _authStore.user!.phoneNumber;
@@ -40,15 +41,15 @@ abstract class ChatControllerBase with Store {
     return getMessage(idChat);
   }
 
-  Future sendAudio(String id, String pathAudio) async {   
+  Future sendAudio(String id, String pathAudio) async {
     Uint8List? audio;
 
-     File file = File(pathAudio);
-  List<int> bytes = await file.readAsBytes();
+    File file = File(pathAudio);
+    List<int> bytes = await file.readAsBytes();
 
-   audio = Uint8List.fromList(bytes);   
+    audio = Uint8List.fromList(bytes);
     final chat = Chat(
-      message: DateTime.now().toString() ,
+      message: DateTime.now().toString(),
       userId: _authStore.user!.phoneNumber,
       timestamp: DateTime.now().toString(),
       typeMessage: 'A',
@@ -67,7 +68,7 @@ abstract class ChatControllerBase with Store {
       return;
     }
     final chat = Chat(
-       message: DateTime.now().toString() ,
+      message: DateTime.now().toString(),
       userId: _authStore.user!.phoneNumber,
       timestamp: DateTime.now().toString(),
       typeMessage: 'D',
@@ -77,16 +78,22 @@ abstract class ChatControllerBase with Store {
     result.fold((l) {}, (r) {});
   }
 
-  Future sendImage(String id) async {
+  Future sendImage(String id, {bool input = false}) async {
     String image = '';
-    final resultImage = await fileAccess.pickImageBase64();
+    var resultImage;
+    if (input == true) {
+      resultImage = await fileAccess.captureImageBase64();
+    } else {
+      resultImage = await fileAccess.pickImageBase64();
+    }
+
     resultImage.fold((l) => l, (r) => image = r ?? '');
     if (image.isEmpty) {
       print("Image not selected");
       return;
     }
     final chat = Chat(
-       message: DateTime.now().toString() ,
+      message: DateTime.now().toString(),
       userId: _authStore.user!.phoneNumber,
       timestamp: DateTime.now().toString(),
       typeMessage: 'P',

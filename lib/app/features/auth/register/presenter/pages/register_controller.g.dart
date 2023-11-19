@@ -25,6 +25,22 @@ mixin _$RegisterController on RegisterControllerBase, Store {
     });
   }
 
+  late final _$messageErrorAtom =
+      Atom(name: 'RegisterControllerBase.messageError', context: context);
+
+  @override
+  String get messageError {
+    _$messageErrorAtom.reportRead();
+    return super.messageError;
+  }
+
+  @override
+  set messageError(String value) {
+    _$messageErrorAtom.reportWrite(value, super.messageError, () {
+      super.messageError = value;
+    });
+  }
+
   late final _$isErrorAtom =
       Atom(name: 'RegisterControllerBase.isError', context: context);
 
@@ -70,6 +86,7 @@ mixin _$RegisterController on RegisterControllerBase, Store {
   String toString() {
     return '''
 isLoading: ${isLoading},
+messageError: ${messageError},
 isError: ${isError}
     ''';
   }

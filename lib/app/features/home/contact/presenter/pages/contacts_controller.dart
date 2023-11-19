@@ -17,6 +17,9 @@ abstract class ContactsControllerBase with Store {
   ContactsControllerBase(this.getContact, this.addContact) {
     when((_) => listContacts == null,
         () async => await getContacts(id: authStore.user!.phoneNumber));
+        reaction((_) => listContacts, (list) {
+          setFilterContacts(list??[]);
+         });
   }
   @observable
   bool isLoading = false;
@@ -24,6 +27,9 @@ abstract class ContactsControllerBase with Store {
   bool isError = false;
   @observable
   List<Contact>? listContacts;
+
+   @observable
+  List<Contact> filterContacts = [];
 
   @action
   setLoadind(bool value) => isLoading = value;
@@ -34,17 +40,19 @@ abstract class ContactsControllerBase with Store {
   @action
   setListContacts(List<Contact> value) => listContacts = value;
 
+  @action
+  setFilterContacts(List<Contact> value) => filterContacts = value;
+
   Future<void> getContacts({required String id}) async {
     setLoadind(true);
     final result = await getContact(uid: id);
-    result.fold((l) {
-      print(l.message);
+    result.fold((l) {    
       setError(true);
       setLoadind(false);
     }, (r) {
-      setListContacts(r);
+      setListContacts(r);      
       setLoadind(false);
-    });
+    });   
   }
 
   Future<void> addContactF(String name, String phone) async {
