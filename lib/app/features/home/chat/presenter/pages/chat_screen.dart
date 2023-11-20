@@ -20,6 +20,7 @@ import 'package:record/record.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
 import "package:cached_network_image/cached_network_image.dart";
+import 'package:permission_handler/permission_handler.dart';
 
 class ChatPage extends StatefulWidget {
   final ChatController controller;
@@ -117,12 +118,12 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                   AppSvgAsset(
                     image: 'video.svg',
-                    color: AppColors.grey,
+                    color: AppColors.black,
                     imageH: 16,
                   ),
                   SizedBox(width: 20),
                   AppSvgAsset(
-                      image: 'phone.svg', color: AppColors.grey, imageH: 20),
+                      image: 'phone.svg', color: AppColors.black, imageH: 20),
                 ],
               ),
             ),
@@ -420,6 +421,22 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  Future<void> _recordAudioTime() async {
+    await Future.delayed(const Duration(seconds: 1), () {
+      if (_isPressed) {
+        setState(() {
+          _recordTime = _recordTime + 0.01;
+
+          if (_recordTime > 0.60) {
+            _isPressed = false;
+            _recordAudioStop();
+          }
+        });
+        _recordAudioTime();
+      }
+    });
+  }
+
   void _startVideoCall() {
     final signallingService = SignallingService.instance;
     signallingService.socket?.emit('startVideosCall', {
@@ -449,36 +466,29 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _recordAudio() async {
-    if (await _audioRecorder.hasPermission()) {
-      String directoryPath = (await getApplicationDocumentsDirectory()).path;
-      Directory('$directoryPath/audio/').createSync(recursive: true);
-      String filePath =
-          '$directoryPath${DateTime.now().millisecondsSinceEpoch}.wav';
-      try {
+    // Request microphone permission
+    var status = await Permission.microphone.request();
+    if (status != PermissionStatus.granted) {
+      // Handle the case where microphone permission is not granted
+      return;
+    }
+
+    // Continue with recording logic
+    try {
+      if (await _audioRecorder.hasPermission()) {
+        String directoryPath = (await getApplicationDocumentsDirectory()).path;
+        Directory('$directoryPath/audio/').createSync(recursive: true);
+        String filePath =
+            '$directoryPath${DateTime.now().millisecondsSinceEpoch}.wav';
+
         await _audioRecorder.start(
           const RecordConfig(encoder: AudioEncoder.wav, bitRate: 128000),
           path: filePath,
         );
-      } catch (e) {
-        print(e);
       }
+    } catch (e) {
+      print("Error in _recordAudio: $e");
     }
-  }
-
-  Future<void> _recordAudioTime() async {
-    await Future.delayed(const Duration(seconds: 1), () {
-      if (_isPressed) {
-        setState(() {
-          _recordTime = _recordTime + 0.01;
-
-          if (_recordTime > 0.60) {
-            _isPressed = false;
-            _recordAudioStop();
-          }
-        });
-        _recordAudioTime();
-      }
-    });
   }
 
   Future<void> _showAttachmentOptions(BuildContext context) {
@@ -556,42 +566,62 @@ class _ChatPageState extends State<ChatPage> {
 
   void _playAudio({required String audioLink}) async {
     final url = audioLink;
-    if (isPause) {
-      await audioPlayer.resume();
-      setState(() {
-        isPlaying = true;
-        isPause = false;
-      });
-    } else if (isPlaying) {
-      await audioPlayer.pause();
-      setState(() {
-        isPlaying = false;
-        isPause = true;
-      });
-    } else {
-      setState(() {
-        isLoading = true;
-      });
-      await audioPlayer.setSourceDeviceFile(url);
-      audioPlayer.resume();
 
-      setState(() {
-        audioPlayer.getDuration.call().then((value) => duration = value!);
-        isPlaying = true;
-      });
+    if (isPause) {
+      await _resumeAudioPlayback();
+    } else if (isPlaying) {
+      await _pauseAudioPlayback();
+    } else {
+      await _startAudioPlayback(url);
     }
 
+    _setupAudioListeners();
+  }
+
+  Future<void> _resumeAudioPlayback() async {
+    await audioPlayer.resume();
+    setState(() {
+      isPlaying = true;
+      isPause = false;
+    });
+  }
+
+  Future<void> _pauseAudioPlayback() async {
+    await audioPlayer.pause();
+    setState(() {
+      isPlaying = false;
+      isPause = true;
+    });
+  }
+
+  Future<void> _startAudioPlayback(String url) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    await audioPlayer.setSourceDeviceFile(url);
+    audioPlayer.resume();
+
+    setState(() {
+      audioPlayer.getDuration.call().then((value) => duration = value!);
+      isPlaying = true;
+    });
+  }
+
+  void _setupAudioListeners() {
     audioPlayer.onDurationChanged.listen((Duration d) {
       setState(() {
         duration = d;
         isLoading = false;
       });
     });
+
     audioPlayer.onPositionChanged.listen((Duration p) {
       setState(() {
         position = p;
       });
     });
+
     audioPlayer.onPlayerComplete.listen((event) {
       setState(() {
         isPlaying = false;

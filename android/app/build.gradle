@@ -64,6 +64,14 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    }
+
+    packagingOptions {
+        pickFirst 'lib/arm64-v8a/libc++_shared.so'
+    }
 }
 
 flutter {
