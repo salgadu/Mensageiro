@@ -4,9 +4,11 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:get/get.dart';
 import 'package:mensageiro/app/core/components/cutom_contact_card.dart';
 import 'package:mensageiro/app/core/components/svg_asset.dart';
+import 'package:mensageiro/app/core/components/text.dart';
 import 'package:mensageiro/app/core/components/title_textfield.dart';
 import 'package:mensageiro/app/core/constants/colors.dart';
 import 'package:mensageiro/app/core/constants/const.dart';
+import 'package:mensageiro/app/core/constants/fonts_sizes.dart';
 import 'package:mensageiro/app/core/infra/call/signalling_service.dart';
 import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
 import 'package:mensageiro/app/features/home/chat/presenter/pages/chat_controller.dart';
@@ -45,6 +47,7 @@ class _ChatPageState extends State<ChatPage> {
   AudioRecorder _audioRecorder = AudioRecorder();
   bool _isPressed = false;
   bool _isTextEmpty = true;
+  double _recordTime = 0.0;
 
   @override
   void initState() {
@@ -114,12 +117,12 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                   AppSvgAsset(
                     image: 'video.svg',
-                    color: AppColors.black,
+                    color: AppColors.grey,
                     imageH: 16,
                   ),
                   SizedBox(width: 20),
                   AppSvgAsset(
-                      image: 'phone.svg', color: AppColors.black, imageH: 20),
+                      image: 'phone.svg', color: AppColors.grey, imageH: 20),
                 ],
               ),
             ),
@@ -206,7 +209,7 @@ class _ChatPageState extends State<ChatPage> {
         child: ListTile(
           onTap: () => Modular.to.push(
             MaterialPageRoute(
-                builder: (context) => PdfViewPage( 
+                builder: (context) => PdfViewPage(
                       pdf: message.message,
                     )),
           ),
@@ -246,8 +249,8 @@ class _ChatPageState extends State<ChatPage> {
               child: Row(
                 children: [
                   InkWell(
-                    onTap: ()async {
-                      await _showAttachmentOptions(context);                   
+                    onTap: () async {
+                      await _showAttachmentOptions(context);
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -271,27 +274,13 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                   ),
                   _isTextEmpty
-                      ? InkWell(
-                          onTap: () {
-                            setState(() {
-                              _isPressed = true;
-                              _recordAudio();
-                            });
-                          },
-                          onLongPress: () {
-                            setState(() {
-                              _isPressed = false;
-                              _recordAudioStop();
-                            });
-                          },
-                          child: _buildMicButton(),
-                        )
+                      ? _buildMicButton()
                       : SizedBox(), // Empty SizedBox when text is not empty
                   _isTextEmpty
                       ? InkWell(
                           child: const SizedBox(
-                            width: 24,
-                            height: 24,
+                            width: 20,
+                            height: 20,
                             child: AppSvgAsset(
                               image: 'emotion.svg',
                               color: AppColors.grey,
@@ -300,8 +289,8 @@ class _ChatPageState extends State<ChatPage> {
                         )
                       : InkWell(
                           child: const SizedBox(
-                            width: 24,
-                            height: 24,
+                            width: 20,
+                            height: 20,
                             child: AppSvgAsset(
                               image:
                                   'send.svg', // assuming 'send.svg' is your send button icon
@@ -314,12 +303,13 @@ class _ChatPageState extends State<ChatPage> {
                         ),
                   const SizedBox(width: 15),
                   InkWell(
-                    onTap: ()async{
-                      await widget.controller.sendImage(widget.contact.id,input: true);
+                    onTap: () async {
+                      await widget.controller
+                          .sendImage(widget.contact.id, input: true);
                     },
                     child: const SizedBox(
-                      width: 24,
-                      height: 24,
+                      width: 20,
+                      height: 20,
                       child: AppSvgAsset(
                         image: 'camera.svg',
                         color: AppColors.grey,
@@ -350,7 +340,7 @@ class _ChatPageState extends State<ChatPage> {
       ),
       child: IconButton(
         icon: Icon(Icons.add, color: Colors.white),
-        onPressed: () async{
+        onPressed: () async {
           await _showAttachmentOptions(context);
           Navigator.of(context).pop();
         },
@@ -376,28 +366,49 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _buildMicButton() {
     return GestureDetector(
-      child: Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: _isPressed ? Colors.red : Colors.transparent,
-        ),
-        padding: const EdgeInsets.all(12.0),
-        child: _isPressed
-            ? AppSvgAsset(
-                image: 'record.svg',
-                color: AppColors.white,
-                imageH: 30, // Adjusted to 24px
-              )
-            : AppSvgAsset(
-                image: 'record.svg',
-                color: AppColors.grey,
-                imageH: 24, // Adjusted to 24px
+      child: AnimatedContainer(
+        transformAlignment: Alignment.centerLeft,
+        duration: Duration(milliseconds: 100),
+        width: _isPressed ? null : 40,
+        child: Row(
+          children: [
+            //format the time
+            if (_isPressed)
+              AppText(
+                  text: _recordTime
+                      .toStringAsFixed(2)
+                      .toString()
+                      .replaceAll('.', ':'),
+                  color: AppColors.grey,
+                  fontSize: AppFontSize.fz06),
+            if (_isPressed) SizedBox(width: 10),
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: _isPressed ? Colors.red : Colors.transparent,
               ),
+              padding: const EdgeInsets.all(12.0),
+              child: _isPressed
+                  ? AppSvgAsset(
+                      image: 'record.svg',
+                      color: AppColors.white,
+                      imageH: 20, // Adjusted to 24px
+                    )
+                  : AppSvgAsset(
+                      image: 'record.svg',
+                      color: AppColors.grey,
+                      imageH: 20, // Adjusted to 24px
+                    ),
+            ),
+          ],
+        ),
       ),
       onLongPress: () {
         setState(() {
           _isPressed = true;
+          _recordTime = 0.0;
           _recordAudio();
+          _recordAudioTime();
         });
       },
       onLongPressUp: () {
@@ -443,16 +454,35 @@ class _ChatPageState extends State<ChatPage> {
       Directory('$directoryPath/audio/').createSync(recursive: true);
       String filePath =
           '$directoryPath${DateTime.now().millisecondsSinceEpoch}.wav';
-
-      await _audioRecorder.start(
-        const RecordConfig(encoder: AudioEncoder.wav, bitRate: 128000),
-        path: filePath,
-      );
+      try {
+        await _audioRecorder.start(
+          const RecordConfig(encoder: AudioEncoder.wav, bitRate: 128000),
+          path: filePath,
+        );
+      } catch (e) {
+        print(e);
+      }
     }
   }
 
+  Future<void> _recordAudioTime() async {
+    await Future.delayed(const Duration(seconds: 1), () {
+      if (_isPressed) {
+        setState(() {
+          _recordTime = _recordTime + 0.01;
+
+          if (_recordTime > 0.60) {
+            _isPressed = false;
+            _recordAudioStop();
+          }
+        });
+        _recordAudioTime();
+      }
+    });
+  }
+
   Future<void> _showAttachmentOptions(BuildContext context) {
-   return showModalBottomSheet(
+    return showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
         return Container(
@@ -464,7 +494,7 @@ class _ChatPageState extends State<ChatPage> {
                 'Fotos',
                 () {
                   _sendPhoto();
-                   Navigator.of(context).pop();
+                  Navigator.of(context).pop();
                 },
               ),
               // _buildAttachmentOption(
@@ -479,7 +509,7 @@ class _ChatPageState extends State<ChatPage> {
                 'Documentos',
                 () {
                   _sendDocuments();
-                   Navigator.of(context).pop();
+                  Navigator.of(context).pop();
                 },
               ),
             ],
