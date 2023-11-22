@@ -369,7 +369,7 @@ class _ChatPageState extends State<ChatPage> {
     return GestureDetector(
       child: AnimatedContainer(
         transformAlignment: Alignment.centerLeft,
-        duration: Duration(milliseconds: 100),
+        duration: const Duration(milliseconds: 100),
         width: _isPressed ? null : 40,
         child: Row(
           children: [
@@ -467,10 +467,11 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> _recordAudio() async {
     // Request microphone permission
-    var status = await Permission.microphone.request();
-    if (status != PermissionStatus.granted) {
+    var status = await Permission.microphone.request().isDenied;
+    if (status) {
       // Handle the case where microphone permission is not granted
-      return;
+      print('Permissão negada para gravar audio');
+      await Permission.microphone.request();
     }
 
     // Continue with recording logic
