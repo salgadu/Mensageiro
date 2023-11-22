@@ -53,6 +53,18 @@
         <key>NSMicrophoneUsageDescription</key>
         <string>This app requires access to the microphone for recording audio.</string>
         
+		<!-- Speech Recognition Usage Description -->
+		<key>NSAppleMusicUsageDescription</key>
+    	<string>Needs to hear recordings</string>
+
+		<!-- Speech Recognition Usage Description -->
+		<key>kTCCServiceMediaLibrary</key>
+		<string>media</string>
+
+		<!-- Speech Recognition Usage Description -->
+		<key>NSSpeechRecognitionUsageDescription</key>
+		<string>speech</string>
+
         <!-- Photo Library Usage Descriptions -->
         <key>NSPhotoLibraryUsageDescription</key>
         <string>We need access to your photo library to save photos.</string>
@@ -62,9 +74,6 @@
         <!-- Camera Usage Description -->
         <key>NSCameraUsageDescription</key>
         <string>$(PRODUCT_NAME) requires access to the camera.</string>
-        
-        <!-- Storage Usage Description -->
-        <key>NSPhotoLibraryUsageDescription</key>
-        <string>This app requires access to your device's storage to save and manage files.</string>
+       
 	</dict>
 </plist>
