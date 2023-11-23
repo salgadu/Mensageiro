@@ -74,6 +74,11 @@
         <!-- Camera Usage Description -->
         <key>NSCameraUsageDescription</key>
         <string>$(PRODUCT_NAME) requires access to the camera.</string>
+
+
+		 <!-- DOCUMENT Usage Description -->
+        <key>NSDocumentsFolderDescription</key>
+        <string>$(PRODUCT_NAME) requires access to the documents directory .</string>
        
 	</dict>
 </plist>

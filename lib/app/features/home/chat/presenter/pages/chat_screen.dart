@@ -480,7 +480,7 @@ class _ChatPageState extends State<ChatPage> {
         String directoryPath = (await getApplicationDocumentsDirectory()).path;
         Directory('$directoryPath/audio/').createSync(recursive: true);
         String filePath =
-            '$directoryPath${DateTime.now().millisecondsSinceEpoch}.wav';
+            '$directoryPath/audio/${DateTime.now().millisecondsSinceEpoch}.wav';
 
         await _audioRecorder.start(
           const RecordConfig(encoder: AudioEncoder.wav, bitRate: 128000),
