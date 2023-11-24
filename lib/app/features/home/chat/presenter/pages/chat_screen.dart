@@ -1,7 +1,6 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:get/get.dart';
+import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:mensageiro/app/core/components/cutom_contact_card.dart';
 import 'package:mensageiro/app/core/components/svg_asset.dart';
 import 'package:mensageiro/app/core/components/text.dart';
@@ -16,8 +15,6 @@ import 'package:mensageiro/app/features/home/chat/presenter/pages/pdf_view_page.
 import 'package:mensageiro/app/features/home/contact/domain/entity/contact.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:record/record.dart';
-import 'package:video_player/video_player.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
 import "package:cached_network_image/cached_network_image.dart";
 import 'package:permission_handler/permission_handler.dart';
@@ -38,14 +35,16 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
-  late VideoPlayerController _videoPlayerController;
+  late FlutterSoundRecorder _soundRecorder;
+  bool isRecorderInit = false;
+  bool isRecording = false;
+
   AudioPlayer audioPlayer = AudioPlayer();
   Duration duration = const Duration();
   Duration position = const Duration();
   bool isPlaying = false;
   bool isLoading = false;
   bool isPause = false;
-  AudioRecorder _audioRecorder = AudioRecorder();
   bool _isPressed = false;
   bool _isTextEmpty = true;
   double _recordTime = 0.0;
@@ -53,8 +52,18 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    _videoPlayerController = VideoPlayerController.network('');
+    _soundRecorder = FlutterSoundRecorder();
     _messageController.addListener(_onTextChanged);
+    openAudio();
+  }
+
+  void openAudio() async {
+    final status = await Permission.microphone.request();
+    if (status != PermissionStatus.granted) {
+      throw RecordingPermissionException('Mic permission not allowed!');
+    }
+    await _soundRecorder!.openRecorder();
+    isRecorderInit = true;
   }
 
   @override
@@ -146,8 +155,6 @@ class _ChatPageState extends State<ChatPage> {
             return _buildAudioBubble(message);
           } else if (message.typeMessage == 'P') {
             return _buildImageBubble(message);
-          } else if (message.typeMessage == 'V') {
-            return _buildVideoMessage(message);
           } else if (message.typeMessage == 'D') {
             return _buildDocumentMessage(message);
           }
@@ -187,14 +194,14 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget _buildVideoMessage(Chat message) {
-    return ListTile(
-      title: AspectRatio(
-        aspectRatio: 16 / 9,
-        child: VideoPlayer(_videoPlayerController),
-      ),
-    );
-  }
+  // Widget _buildVideoMessage(Chat message) {
+  //   return ListTile(
+  //     title: AspectRatio(
+  //       aspectRatio: 16 / 9,
+  //       child: VideoPlayer(_videoPlayerController),
+  //     ),
+  //   );
+  // }
 
   Widget _buildDocumentMessage(Chat message) {
     return FractionallySizedBox(
@@ -404,15 +411,15 @@ class _ChatPageState extends State<ChatPage> {
           ],
         ),
       ),
-      onLongPress: () {
+      onLongPress: () async {
         setState(() {
           _isPressed = true;
           _recordTime = 0.0;
           _recordAudio();
-          _recordAudioTime();
+          // _recordAudioTime();
         });
       },
-      onLongPressUp: () {
+      onLongPressUp: () async {
         setState(() {
           _isPressed = false;
           _recordAudioStop();
@@ -426,7 +433,6 @@ class _ChatPageState extends State<ChatPage> {
       if (_isPressed) {
         setState(() {
           _recordTime = _recordTime + 0.01;
-
           if (_recordTime > 0.60) {
             _isPressed = false;
             _recordAudioStop();
@@ -457,39 +463,20 @@ class _ChatPageState extends State<ChatPage> {
     _messageController.clear();
   }
 
-  Future<void> _recordAudioStop() async {
-    final recording = await _audioRecorder.stop();
-    if (recording == null) {
+  Future<void> _recordAudio() async {
+    var tempDir = await getTemporaryDirectory();
+    var path = '${tempDir.path}/flutter_sound.aac';
+    if (!isRecorderInit) {
       return;
     }
-    await widget.controller.sendAudio(widget.contact.id, recording);
+    await _soundRecorder.startRecorder(
+      toFile: path,
+    );
   }
 
-  Future<void> _recordAudio() async {
-    // Request microphone permission
-    var status = await Permission.microphone.request().isDenied;
-    if (status) {
-      // Handle the case where microphone permission is not granted
-      print('Permissão negada para gravar audio');
-      await Permission.microphone.request();
-    }
-
-    // Continue with recording logic
-    try {
-      if (await _audioRecorder.hasPermission()) {
-        String directoryPath = (await getApplicationDocumentsDirectory()).path;
-        Directory('$directoryPath/audio/').createSync(recursive: true);
-        String filePath =
-            '$directoryPath${DateTime.now().millisecondsSinceEpoch}.wav';
-
-        await _audioRecorder.start(
-          const RecordConfig(encoder: AudioEncoder.wav, bitRate: 128000),
-          path: filePath,
-        );
-      }
-    } catch (e) {
-      print("Error in _recordAudio: $e");
-    }
+  Future<void> _recordAudioStop() async {
+    var path = await _soundRecorder.stopRecorder();
+    await widget.controller.sendAudio(widget.contact.id, path!);
   }
 
   Future<void> _showAttachmentOptions(BuildContext context) {
@@ -640,9 +627,9 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
-    _videoPlayerController.dispose();
+    _soundRecorder.closeRecorder();
+    isRecorderInit = false;
     audioPlayer.dispose();
-    _audioRecorder.dispose();
     super.dispose();
   }
 }
