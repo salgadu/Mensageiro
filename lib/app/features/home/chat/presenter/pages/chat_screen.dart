@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:get/get.dart';
 import 'package:mensageiro/app/core/components/cutom_contact_card.dart';
 import 'package:mensageiro/app/core/components/svg_asset.dart';
@@ -45,10 +46,11 @@ class _ChatPageState extends State<ChatPage> {
   bool isPlaying = false;
   bool isLoading = false;
   bool isPause = false;
-  AudioRecorder _audioRecorder = AudioRecorder();
+  // AudioRecorder _audioRecorder = AudioRecorder();
   bool _isPressed = false;
   bool _isTextEmpty = true;
   double _recordTime = 0.0;
+  final _audioRecorder = FlutterSoundRecorder();
 
   @override
   void initState() {
@@ -369,7 +371,7 @@ class _ChatPageState extends State<ChatPage> {
     return GestureDetector(
       child: AnimatedContainer(
         transformAlignment: Alignment.centerLeft,
-        duration: const Duration(milliseconds: 100),
+        duration: Duration(milliseconds: 100),
         width: _isPressed ? null : 40,
         child: Row(
           children: [
@@ -457,39 +459,24 @@ class _ChatPageState extends State<ChatPage> {
     _messageController.clear();
   }
 
-  Future<void> _recordAudioStop() async {
-    final recording = await _audioRecorder.stop();
-    if (recording == null) {
-      return;
+  Future initRecorder() async {
+    final status = await Permission.microphone.request();
+    if (status != PermissionStatus.granted) {
+      throw 'Permission not granted';
     }
-    await widget.controller.sendAudio(widget.contact.id, recording);
+    await _audioRecorder.openRecorder();
+    _audioRecorder.setSubscriptionDuration(const Duration(milliseconds: 500));
   }
 
-  Future<void> _recordAudio() async {
-    // Request microphone permission
-    var status = await Permission.microphone.request().isDenied;
-    if (status) {
-      // Handle the case where microphone permission is not granted
-      print('Permissão negada para gravar audio');
-      await Permission.microphone.request();
-    }
+  Future _recordAudio() async {
+    await _audioRecorder.startRecorder(toFile: "audio");
+  }
 
-    // Continue with recording logic
-    try {
-      if (await _audioRecorder.hasPermission()) {
-        String directoryPath = (await getApplicationDocumentsDirectory()).path;
-        Directory('$directoryPath/audio/').createSync(recursive: true);
-        String filePath =
-            '$directoryPath${DateTime.now().millisecondsSinceEpoch}.wav';
-
-        await _audioRecorder.start(
-          const RecordConfig(encoder: AudioEncoder.wav, bitRate: 128000),
-          path: filePath,
-        );
-      }
-    } catch (e) {
-      print("Error in _recordAudio: $e");
-    }
+  Future _recordAudioStop() async {
+    final filePath = await _audioRecorder.stopRecorder();
+    final file = File(filePath!);
+    print('Recorded file path: $filePath');
+    await widget.controller.sendAudio(widget.contact.id, file.path);
   }
 
   Future<void> _showAttachmentOptions(BuildContext context) {
@@ -642,7 +629,7 @@ class _ChatPageState extends State<ChatPage> {
   void dispose() {
     _videoPlayerController.dispose();
     audioPlayer.dispose();
-    _audioRecorder.dispose();
+    _audioRecorder.closeRecorder();
     super.dispose();
   }
 }
