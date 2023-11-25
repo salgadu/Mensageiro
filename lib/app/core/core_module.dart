@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -13,11 +14,12 @@ import 'package:mensageiro/app/core/store/auth/auth_store.dart';
 
 class CoreModule extends Module {
   @override
-  void binds(i) {   
+  void binds(i) {
     i.addInstance<FirebaseAuth>(FirebaseAuth.instance);
     i.addInstance<FirebaseFirestore>(FirebaseFirestore.instance);
     i.addInstance<FirebaseMessaging>(FirebaseMessaging.instance);
     i.addInstance<FirebaseStorage>(FirebaseStorage.instance);
+    i.addInstance<Dio>(Dio());
     i.addInstance(NotificationService());
     i.addInstance<ImagePicker>(ImagePicker());
     i.addInstance<FilePicker>(FilePicker.platform);

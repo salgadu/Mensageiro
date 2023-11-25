@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -17,17 +18,13 @@ class WavePlayAudio extends StatefulWidget {
 class _WavePlayAudioState extends State<WavePlayAudio> {
   late PlayerController playerController;
   bool isPlay = false;
+  late Dio dio;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    dio = Modular.get<Dio>();
     playerController = PlayerController();
-    checkIfFileExists(widget.message.timestamp).then((value) {
-      if (!value) {
-        downloadAndSaveAudio(widget.message.message).then((value) {});
-      }
-    });
     preparePlay(widget.message.timestamp);
     playerController.onCompletion.listen((_) {
       setState(() {
@@ -42,25 +39,16 @@ class _WavePlayAudioState extends State<WavePlayAudio> {
     super.dispose();
   }
 
-  Future<bool> checkIfFileExists(String fileName) async {
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String filePath = '${appDocDir.path}/$fileName.aac';
-
+  Future<bool> checkIfFileExists(String filePath) async {
     File file = File(filePath);
     return await file.exists();
   }
 
-  Future<void> downloadAndSaveAudio(String url) async {
-    Dio dio = Dio();
+  Future<void> downloadAndSaveAudio(String url, filePath) async {
     try {
       // Faz a solicitação HTTP para obter o conteúdo do áudio
       Response response = await dio.get(url,
           options: Options(responseType: ResponseType.bytes));
-
-      // Obtém o diretório de armazenamento local
-      Directory appDocDir = await getApplicationDocumentsDirectory();
-      String filePath = '${appDocDir.path}/${widget.message.timestamp}.aac';
-
       // Salva o conteúdo do áudio localmente
       File file = File(filePath);
       await file.writeAsBytes(response.data, flush: true);
@@ -73,13 +61,17 @@ class _WavePlayAudioState extends State<WavePlayAudio> {
   Future<void> preparePlay(String fileName) async {
     Directory appDocDir = await getApplicationDocumentsDirectory();
     String filePath = '${appDocDir.path}/$fileName.aac';
+    final fileExists = await checkIfFileExists(filePath);
+    if (!fileExists) {
+      await downloadAndSaveAudio(widget.message.message, filePath);
+    }
+
     await playerController.preparePlayer(
       path: filePath,
       shouldExtractWaveform: true,
       noOfSamples: MediaQuery.of(context).size.width ~/ 6.6,
       volume: 1.0,
     );
-    setState(() {});
   }
 
   void _playandPause() async {
@@ -95,17 +87,18 @@ class _WavePlayAudioState extends State<WavePlayAudio> {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
           child: AudioFileWaveforms(
             continuousWaveform: true,
             enableSeekGesture: true,
             key: Key(widget.message.timestamp),
-            size: Size(10, 70),
+            size: const Size(10, 70),
             playerController: playerController,
-            waveformData: [],
             backgroundColor: Colors.black,
-            margin: EdgeInsets.only(left: 20),
+            margin: const EdgeInsets.only(left: 20),
             waveformType: WaveformType.fitWidth,
             playerWaveStyle: const PlayerWaveStyle(
               fixedWaveColor: Colors.grey,
@@ -131,7 +124,7 @@ class _WavePlayAudioState extends State<WavePlayAudio> {
                 color: Colors.black, borderRadius: BorderRadius.circular(50)),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           width: 20,
         )
       ],

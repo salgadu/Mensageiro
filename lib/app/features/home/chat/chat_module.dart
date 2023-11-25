@@ -6,7 +6,6 @@ import 'package:mensageiro/app/features/home/chat/domain/usecases/send_audio.dar
 import 'package:mensageiro/app/features/home/chat/domain/usecases/send_chat.dart';
 import 'package:mensageiro/app/features/home/chat/domain/usecases/send_document.dart';
 import 'package:mensageiro/app/features/home/chat/domain/usecases/send_image.dart';
-import 'package:mensageiro/app/features/home/chat/domain/usecases/send_video.dart';
 import 'package:mensageiro/app/features/home/chat/external/datasource/firebase_datsource_chats.dart';
 import 'package:mensageiro/app/features/home/chat/infra/datasource/i_chat_datasource.dart';
 import 'package:mensageiro/app/features/home/chat/infra/repository/chat_repository_impl.dart';
