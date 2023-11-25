@@ -15,8 +15,8 @@ flutter_native_splash:
   # splash screen to a png image.  This is useful for gradients. The image will be stretch to the
   # size of the app. Only one parameter can be used, color and background_image cannot both be set.
   color: "#42a5f5"
-  background_image: "assets/menssageiro1.png"
-  branding: "assets/menssageiro1.png"
+  background_image: "assets/europlus.svg"
+  branding: "assets/europlus.svg"
 
   # Optional parameters are listed below.  To enable a parameter, uncomment the line by removing
   # the leading # character.
@@ -58,7 +58,7 @@ flutter_native_splash:
     #image: assets/android12splash.png
 
     # Splash screen background color.
-    color: "#42a5f5"
+    color: "#000000"
 
     # App icon background color.
     #icon_background_color: "#111111"

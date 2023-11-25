@@ -20,7 +20,7 @@ abstract class AuthStoreBase with Store {
     reaction((_) => authStatus, (_) {
       switch (authStatus) {
         case AuthStatus.Authenticated:
-          Modular.to.pushReplacementNamed('/home/contacts/');
+          Modular.to.navigate('/home/contacts/');
           break;
         case AuthStatus.Unauteticated:
           Modular.to.pushReplacementNamed('/home/');
@@ -43,6 +43,7 @@ abstract class AuthStoreBase with Store {
   setAuthStatus(AuthStatus value) => authStatus = value;
 
   Future<void> authLogin() async {
+    await Future.delayed(const Duration(seconds: 2));
     try {
       firebase.authStateChanges().listen((User? user) async {
         if (user != null) {
@@ -57,24 +58,22 @@ abstract class AuthStoreBase with Store {
                 .update({'token': token});
             setAuthStatus(AuthStatus.Authenticated);
             return;
-          }else{
-             await firebase.signOut();
+          } else {
             setAuthStatus(AuthStatus.Unauteticated);
+            await firebase.signOut();
             return;
           }
-        }else{
-           await firebase.signOut();
+        } else {
           setAuthStatus(AuthStatus.Unauteticated);
+          await firebase.signOut();
           return;
-        }   
-        
+        }
       });
-       
     } catch (e) {
+      setAuthStatus(AuthStatus.Unauteticated);
       await firebase.signOut();
-      setAuthStatus(AuthStatus.Unauteticated);      
       return;
-    }    
+    }
   }
 
   Future<void> signOut() async {

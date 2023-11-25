@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:mensageiro/app/core/infra/file_acess/i_file_access.dart';
 import 'package:mensageiro/app/core/store/auth/auth_store.dart';
+import 'package:mensageiro/app/core/utils/times_tamp.dart';
 import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
 import 'package:mensageiro/app/features/home/chat/domain/usecases/get_message.dart';
 import 'package:mensageiro/app/features/home/chat/domain/usecases/send_audio.dart';
@@ -48,10 +49,11 @@ abstract class ChatControllerBase with Store {
     List<int> bytes = await file.readAsBytes();
 
     audio = Uint8List.fromList(bytes);
+    final times = getTimesTamp();
     final chat = Chat(
-      message: DateTime.now().toString(),
+      message: times,
       userId: _authStore.user!.phoneNumber,
-      timestamp: DateTime.now().toUtc().millisecondsSinceEpoch.toString(),
+      timestamp: times,
       typeMessage: 'A',
     );
     final idChat = '$id${_authStore.user!.phoneNumber}';
@@ -60,6 +62,7 @@ abstract class ChatControllerBase with Store {
   }
 
   Future sendDocument(String id) async {
+    final times = getTimesTamp();
     Uint8List? document;
     final resultDocument = await fileAccess.pickDocument();
     resultDocument.fold((l) => l, (r) => document = r);
@@ -68,9 +71,9 @@ abstract class ChatControllerBase with Store {
       return;
     }
     final chat = Chat(
-      message: DateTime.now().toString(),
+      message: times,
       userId: _authStore.user!.phoneNumber,
-      timestamp: DateTime.now().toString(),
+      timestamp: times,
       typeMessage: 'D',
     );
     final idChat = '$id${_authStore.user!.phoneNumber}';
@@ -79,6 +82,7 @@ abstract class ChatControllerBase with Store {
   }
 
   Future sendImage(String id, {bool input = false}) async {
+    final times = getTimesTamp();
     String image = '';
     var resultImage;
     if (input == true) {
@@ -93,9 +97,9 @@ abstract class ChatControllerBase with Store {
       return;
     }
     final chat = Chat(
-      message: DateTime.now().toString(),
+      message: times,
       userId: _authStore.user!.phoneNumber,
-      timestamp: DateTime.now().toString(),
+      timestamp: times,
       typeMessage: 'P',
     );
     final idChat = '$id${_authStore.user!.phoneNumber}';

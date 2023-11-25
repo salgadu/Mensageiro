@@ -66,7 +66,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '398647625357',
     projectId: 'mensageiro-ea074',
     storageBucket: 'mensageiro-ea074.appspot.com',
-    iosBundleId: 'com.allinsys.chat.test',
+    iosBundleId: 'mensageiro-ea074.appspot.com',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(

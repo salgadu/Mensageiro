@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:flutter_sound/public/flutter_sound_recorder.dart';
+import 'package:flutter_sound/flutter_sound.dart';
+import 'package:intl/intl.dart';
 import 'package:mensageiro/app/core/components/cutom_contact_card.dart';
 import 'package:mensageiro/app/core/components/svg_asset.dart';
 import 'package:mensageiro/app/core/components/text.dart';
@@ -9,6 +12,7 @@ import 'package:mensageiro/app/core/components/title_textfield.dart';
 import 'package:mensageiro/app/core/constants/colors.dart';
 import 'package:mensageiro/app/core/constants/const.dart';
 import 'package:mensageiro/app/core/constants/fonts_sizes.dart';
+import 'package:mensageiro/app/core/utils/times_tamp.dart';
 import 'package:mensageiro/app/features/home/chat/domain/entity/chat.dart';
 import 'package:mensageiro/app/features/home/chat/presenter/pages/chat_controller.dart';
 import 'package:mensageiro/app/features/home/chat/presenter/pages/pdf_view_page.dart';
@@ -60,38 +64,43 @@ class _ChatPageState extends State<ChatPage> {
 
   void openAudio() async {
     final status = await Permission.microphone.request();
+    await Permission.storage.request();
+    await Permission.manageExternalStorage.request();
     if (status != PermissionStatus.granted) {
       throw RecordingPermissionException('Mic permission not allowed!');
     }
-    await _soundRecorder!.openRecorder();
+    await _soundRecorder.openRecorder();
     isRecorderInit = true;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeaderComposer(context),
-            Expanded(
-              child: StreamBuilder<List<Chat>>(
-                stream: widget.controller.messages(widget.contact.id),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Stack(
-                      children: [_buildMessagesList(snapshot.data!)],
-                    );
-                  } else if (snapshot.hasError) {
-                    return Text("Error: ${snapshot.error}");
-                  } else {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                },
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildHeaderComposer(context),
+              Expanded(
+                child: StreamBuilder<List<Chat>>(
+                  stream: widget.controller.messages(widget.contact.id),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Stack(
+                        children: [_buildMessagesList(snapshot.data!)],
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text("Error: ${snapshot.error}");
+                    } else {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                  },
+                ),
               ),
-            ),
-            _buildMessageComposer(context),
-          ],
+              _buildMessageComposer(context),
+            ],
+          ),
         ),
       ),
     );
@@ -110,13 +119,13 @@ class _ChatPageState extends State<ChatPage> {
                     onTap: () {
                       Modular.to.pop();
                     },
-                    child: AppSvgAsset(
+                    child: const AppSvgAsset(
                       image: 'back.svg',
                       color: AppColors.black,
                       imageH: 20,
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: CustomContactCard(
                       icon: 'profile.svg',
@@ -126,13 +135,13 @@ class _ChatPageState extends State<ChatPage> {
                       title: widget.contact.name,
                     ),
                   ),
-                  AppSvgAsset(
+                  const AppSvgAsset(
                     image: 'video.svg',
                     color: AppColors.black,
                     imageH: 16,
                   ),
-                  SizedBox(width: 20),
-                  AppSvgAsset(
+                  const SizedBox(width: 20),
+                  const AppSvgAsset(
                       image: 'phone.svg', color: AppColors.black, imageH: 20),
                 ],
               ),
@@ -168,15 +177,15 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildAudioBubble(Chat message) {
-    return Container(
-      child: WavePlayAudio(
-        message: message,
-      ),
+    return WavePlayAudio(
+      key: Key(message.timestamp),
+      message: message,
     );
   }
 
   Widget _buildImageBubble(Chat message) {
     return BubbleNormalImage(
+      key: Key(message.timestamp),
       isSender: message.userId != widget.contact.id,
       id: message.id ?? message.timestamp,
       image: _image(message.message),
@@ -194,7 +203,7 @@ class _ChatPageState extends State<ChatPage> {
           ? Alignment.bottomRight
           : Alignment.bottomLeft,
       child: Container(
-        margin: EdgeInsets.all(10),
+        margin: const EdgeInsets.all(10),
         decoration: BoxDecoration(
             color: Colors.grey.shade300,
             borderRadius: BorderRadius.circular(5)),
@@ -214,6 +223,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _buildTextBubble(Chat message) {
     return BubbleNormal(
+      key: Key(message.timestamp),
       text: message.message,
       isSender: message.userId != widget.contact.id,
       color: Colors.black,
@@ -233,7 +243,7 @@ class _ChatPageState extends State<ChatPage> {
         children: <Widget>[
           Expanded(
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
               decoration: BoxDecoration(
                 color: AppColors.lightGrey,
                 borderRadius: BorderRadius.circular(50),
@@ -249,8 +259,8 @@ class _ChatPageState extends State<ChatPage> {
                         borderRadius: BorderRadius.circular(14.0),
                         color: AppColors.black,
                       ),
-                      padding: EdgeInsets.all(10),
-                      child: AppSvgAsset(
+                      padding: const EdgeInsets.all(10),
+                      child: const AppSvgAsset(
                         image: 'add.svg',
                         imageH: 16,
                         color: AppColors.white,
@@ -267,10 +277,10 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                   _isTextEmpty
                       ? _buildMicButton()
-                      : SizedBox(), // Empty SizedBox when text is not empty
+                      : const SizedBox(), // Empty SizedBox when text is not empty
                   _isTextEmpty
-                      ? InkWell(
-                          child: const SizedBox(
+                      ? const InkWell(
+                          child: SizedBox(
                             width: 20,
                             height: 20,
                             child: AppSvgAsset(
@@ -331,7 +341,7 @@ class _ChatPageState extends State<ChatPage> {
         color: Colors.black,
       ),
       child: IconButton(
-        icon: Icon(Icons.add, color: Colors.white),
+        icon: const Icon(Icons.add, color: Colors.white),
         onPressed: () async {
           await _showAttachmentOptions(context);
           Navigator.of(context).pop();
@@ -348,7 +358,7 @@ class _ChatPageState extends State<ChatPage> {
         color: Colors.grey,
       ),
       child: IconButton(
-        icon: Icon(Icons.send, color: Colors.white),
+        icon: const Icon(Icons.send, color: Colors.white),
         onPressed: () {
           _sendMessage(_messageController.text);
         },
@@ -373,7 +383,7 @@ class _ChatPageState extends State<ChatPage> {
                       .replaceAll('.', ':'),
                   color: AppColors.grey,
                   fontSize: AppFontSize.fz06),
-            if (_isPressed) SizedBox(width: 10),
+            if (_isPressed) const SizedBox(width: 10),
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -381,12 +391,12 @@ class _ChatPageState extends State<ChatPage> {
               ),
               padding: const EdgeInsets.all(12.0),
               child: _isPressed
-                  ? AppSvgAsset(
+                  ? const AppSvgAsset(
                       image: 'record.svg',
                       color: AppColors.white,
                       imageH: 20, // Adjusted to 24px
                     )
-                  : AppSvgAsset(
+                  : const AppSvgAsset(
                       image: 'record.svg',
                       color: AppColors.grey,
                       imageH: 20, // Adjusted to 24px
@@ -432,7 +442,7 @@ class _ChatPageState extends State<ChatPage> {
       widget.contact.id,
       Chat(
         message: message,
-        timestamp: DateTime.now().toString(),
+        timestamp: getTimesTamp(),
         typeMessage: 'M',
       ),
     );
@@ -446,6 +456,7 @@ class _ChatPageState extends State<ChatPage> {
       return;
     }
     await _soundRecorder.startRecorder(
+      codec: Codec.aacMP4,
       toFile: path,
     );
   }
@@ -479,7 +490,7 @@ class _ChatPageState extends State<ChatPage> {
               //   },
               // ),
               _buildAttachmentOption(
-                Icon(Icons.insert_drive_file),
+                const Icon(Icons.insert_drive_file),
                 'Documentos',
                 () {
                   _sendDocuments();

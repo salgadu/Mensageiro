@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:mensageiro/app/core/components/custom_divider.dart';
 import 'package:mensageiro/app/core/components/cutom_contact_card.dart';
 import 'package:mensageiro/app/core/components/page_title.dart';
 import 'package:mensageiro/app/core/components/rounded_item.dart';
@@ -15,7 +12,6 @@ import 'package:mensageiro/app/core/components/title_textfield.dart';
 import 'package:mensageiro/app/core/constants/colors.dart';
 import 'package:mensageiro/app/core/constants/const.dart';
 import 'package:mensageiro/app/core/constants/fonts_sizes.dart';
-import 'package:mensageiro/app/core/widgets/drawer/custom_drawer.dart';
 import 'package:mensageiro/app/features/home/contact/domain/entity/contact.dart';
 import 'package:mensageiro/app/features/home/contact/presenter/pages/contacts_controller.dart';
 
@@ -32,7 +28,7 @@ class HomeContactPage extends StatefulWidget {
 
 class _HomeContactPageState extends State<HomeContactPage> {
   late ContactsController controller;
-   List<Contact> filterContacts = [];
+  List<Contact> filterContacts = [];
 
   var number = MaskTextInputFormatter(
     mask: '+55 (##) # ####-####',
@@ -43,8 +39,7 @@ class _HomeContactPageState extends State<HomeContactPage> {
   @override
   void initState() {
     super.initState();
-    controller = widget.controller;    
-   
+    controller = widget.controller;
   }
 
   loadContact() async {
@@ -180,7 +175,7 @@ class _HomeContactPageState extends State<HomeContactPage> {
   }
 
   @override
-  Widget build(BuildContext context) {    
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
       // floatingActionButton: FloatingActionButton(
@@ -193,7 +188,7 @@ class _HomeContactPageState extends State<HomeContactPage> {
       // ),
 
       body: SafeArea(
-        child: Observer(builder: (_) {         
+        child: Observer(builder: (_) {
           if (controller.isLoading) {
             return const Center(
               child: CircularProgressIndicator(),
@@ -288,9 +283,13 @@ class _HomeContactPageState extends State<HomeContactPage> {
                             child: TitleTextField(
                               hintText: 'Buscar',
                               borderColor: Colors.transparent,
-                              onChanged: (text) {                               
-                                   var listContacts = controller.listContacts!.where((element) => element.name.toLowerCase().contains(text.toLowerCase())).toList(); 
-                                   controller.setFilterContacts(listContacts);                                                                
+                              onChanged: (text) {
+                                var listContacts = controller.listContacts!
+                                    .where((element) => element.name
+                                        .toLowerCase()
+                                        .contains(text.toLowerCase()))
+                                    .toList();
+                                controller.setFilterContacts(listContacts);
                               },
                             ),
                           ),
@@ -362,21 +361,19 @@ class _HomeContactPageState extends State<HomeContactPage> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children:
-                         controller.filterContacts.map((contact) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              child: InkWell(
-                                onTap: () => Modular.to.pushNamed('/home/chat/',
-                                    arguments: contact),
-                                child: CustomContactCard(
-                                    icon: 'profile.svg',
-                                    color: AppColors.grey,
-                                    title: contact.name),
-                              ),
-                            );
-                          }).toList()
-                       ,
+                        children: controller.filterContacts.map((contact) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: InkWell(
+                              onTap: () => Modular.to
+                                  .pushNamed('/home/chat/', arguments: contact),
+                              child: CustomContactCard(
+                                  icon: 'profile.svg',
+                                  color: AppColors.grey,
+                                  title: contact.name),
+                            ),
+                          );
+                        }).toList(),
                       ),
                     ),
                   ),

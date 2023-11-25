@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mensageiro/app/core/infra/notification/firebase_message_service.dart';
 import 'package:mensageiro/app/core/infra/notification/notification_service.dart';
+import 'package:mensageiro/app/core/store/auth/auth_status.dart';
 import 'package:mensageiro/app/core/store/auth/auth_store.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -26,9 +26,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   initAutoLogin() async {
     await authStore.authLogin();
-    if (authStore.authStatus == null) {
-      Modular.to.pushReplacementNamed('/home/');
-    }
   }
 
   initializeFirebaseMessaging() async {
@@ -43,20 +40,21 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(color: Colors.blue),
+        decoration: const BoxDecoration(color: Colors.black),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                  constraints:
-                      const BoxConstraints(maxHeight: 200, maxWidth: 200),
-                  child: SvgPicture.asset('assets/europlus.svg')),
-              Text('MENSAGEIRO',
-                  style: GoogleFonts.spaceGrotesk().copyWith(fontSize: 30)),
+                constraints:
+                    const BoxConstraints(maxHeight: 300, maxWidth: 300),
+                child: SvgPicture.asset('assets/europlus.svg'),
+              ),
+              const Text('MENSAGEIRO',
+                  style: TextStyle(fontSize: 20, color: Colors.white)),
               const SizedBox(
-                height: 20,
+                height: 35,
               ),
               const CircularProgressIndicator(
                 color: Colors.white,
