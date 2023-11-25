@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_sound/flutter_sound.dart';
-import 'package:intl/intl.dart';
 import 'package:mensageiro/app/core/components/cutom_contact_card.dart';
 import 'package:mensageiro/app/core/components/svg_asset.dart';
 import 'package:mensageiro/app/core/components/text.dart';
@@ -180,6 +179,7 @@ class _ChatPageState extends State<ChatPage> {
     return WavePlayAudio(
       key: Key(message.timestamp),
       message: message,
+      isSender: message.userId != widget.contact.id,
     );
   }
 

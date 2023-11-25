@@ -9,7 +9,9 @@ import 'package:path_provider/path_provider.dart';
 
 class WavePlayAudio extends StatefulWidget {
   final Chat message;
-  const WavePlayAudio({super.key, required this.message});
+  final bool isSender;
+  const WavePlayAudio(
+      {super.key, required this.message, required this.isSender});
 
   @override
   State<WavePlayAudio> createState() => _WavePlayAudioState();
@@ -69,7 +71,7 @@ class _WavePlayAudioState extends State<WavePlayAudio> {
     await playerController.preparePlayer(
       path: filePath,
       shouldExtractWaveform: true,
-      noOfSamples: MediaQuery.of(context).size.width ~/ 6.6,
+      noOfSamples: MediaQuery.of(context).size.width ~/ 7.2,
       volume: 1.0,
     );
   }
@@ -86,48 +88,68 @@ class _WavePlayAudioState extends State<WavePlayAudio> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: AudioFileWaveforms(
-            continuousWaveform: true,
-            enableSeekGesture: true,
-            key: Key(widget.message.timestamp),
-            size: const Size(10, 70),
-            playerController: playerController,
-            backgroundColor: Colors.black,
-            margin: const EdgeInsets.only(left: 20),
-            waveformType: WaveformType.fitWidth,
-            playerWaveStyle: const PlayerWaveStyle(
-              fixedWaveColor: Colors.grey,
-              liveWaveColor: Colors.black,
-              scaleFactor: 100,
-              spacing: 4,
-              waveCap: StrokeCap.round,
-              showSeekLine: true,
+    return Container(
+      margin: EdgeInsets.only(
+          top: 10,
+          bottom: 10,
+          left: !widget.isSender ? 5 : 30,
+          right: !widget.isSender ? 30 : 5),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.only(
+          topLeft: const Radius.circular(50),
+          topRight: const Radius.circular(50),
+          bottomLeft: widget.isSender
+              ? const Radius.circular(50)
+              : const Radius.circular(0),
+          bottomRight: widget.isSender
+              ? const Radius.circular(0)
+              : const Radius.circular(50),
+        ),
+        color: Colors.grey[200]!.withOpacity(0.2),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: AudioFileWaveforms(
+              continuousWaveform: true,
+              enableSeekGesture: true,
+              key: Key(widget.message.timestamp),
+              size: const Size(10, 70),
+              playerController: playerController,
+              backgroundColor: Colors.black,
+              margin: const EdgeInsets.only(left: 20),
+              waveformType: WaveformType.fitWidth,
+              playerWaveStyle: const PlayerWaveStyle(
+                fixedWaveColor: Colors.grey,
+                liveWaveColor: Colors.black,
+                scaleFactor: 100,
+                spacing: 4,
+                waveCap: StrokeCap.round,
+                showSeekLine: true,
+              ),
             ),
           ),
-        ),
-        IconButton(
-          onPressed: _playandPause,
-          icon: Container(
-            width: 50,
-            height: 50,
-            constraints: const BoxConstraints(maxWidth: 150),
-            child: Icon(
-              isPlay ? Icons.pause : Icons.play_arrow,
-              color: Colors.white,
+          IconButton(
+            onPressed: _playandPause,
+            icon: Container(
+              width: 50,
+              height: 50,
+              constraints: const BoxConstraints(maxWidth: 150),
+              child: Icon(
+                isPlay ? Icons.pause : Icons.play_arrow,
+                color: Colors.white,
+              ),
+              decoration: BoxDecoration(
+                  color: Colors.black, borderRadius: BorderRadius.circular(50)),
             ),
-            decoration: BoxDecoration(
-                color: Colors.black, borderRadius: BorderRadius.circular(50)),
           ),
-        ),
-        const SizedBox(
-          width: 20,
-        )
-      ],
+          const SizedBox(
+            width: 20,
+          )
+        ],
+      ),
     );
   }
 }
