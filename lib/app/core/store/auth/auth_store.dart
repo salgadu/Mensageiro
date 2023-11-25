@@ -44,6 +44,7 @@ abstract class AuthStoreBase with Store {
 
   Future<void> authLogin() async {
     await Future.delayed(const Duration(seconds: 2));
+    setAuthStatus(AuthStatus.START);
     try {
       firebase.authStateChanges().listen((User? user) async {
         if (user != null) {

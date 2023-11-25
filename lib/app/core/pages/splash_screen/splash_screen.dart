@@ -21,11 +21,15 @@ class _SplashScreenState extends State<SplashScreen> {
     authStore = Modular.get<AuthStore>();
     initializeFirebaseMessaging();
     checkNotifications();
-    initAutoLogin();
+    initAutoLogin().then((value) => value);
   }
 
-  initAutoLogin() async {
+  Future<void> initAutoLogin() async {
     await authStore.authLogin();
+    if (authStore.authStatus == AuthStatus.START ||
+        authStore.authStatus == null) {
+      Modular.to.pushReplacementNamed('/home/');
+    }
   }
 
   initializeFirebaseMessaging() async {
