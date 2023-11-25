@@ -51,7 +51,7 @@ abstract class ChatControllerBase with Store {
     final chat = Chat(
       message: DateTime.now().toString(),
       userId: _authStore.user!.phoneNumber,
-      timestamp: DateTime.now().toString(),
+      timestamp: DateTime.now().toUtc().millisecondsSinceEpoch.toString(),
       typeMessage: 'A',
     );
     final idChat = '$id${_authStore.user!.phoneNumber}';

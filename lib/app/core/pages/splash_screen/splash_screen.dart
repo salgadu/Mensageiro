@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mensageiro/app/core/infra/notification/firebase_message_service.dart';
 import 'package:mensageiro/app/core/infra/notification/notification_service.dart';
@@ -13,11 +14,11 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  late final AuthStore authStore; 
+  late final AuthStore authStore;
   @override
-  void initState() {   
+  void initState() {
     super.initState();
-    authStore = Modular.get<AuthStore>();     
+    authStore = Modular.get<AuthStore>();
     initializeFirebaseMessaging();
     checkNotifications();
     initAutoLogin();
@@ -25,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   initAutoLogin() async {
     await authStore.authLogin();
-    if(authStore.authStatus == null) {
+    if (authStore.authStatus == null) {
       Modular.to.pushReplacementNamed('/home/');
     }
   }
@@ -51,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> {
               Container(
                   constraints:
                       const BoxConstraints(maxHeight: 200, maxWidth: 200),
-                  child: Image.asset('assets/menssageiro1.png')),
+                  child: SvgPicture.asset('assets/europlus.svg')),
               Text('MENSAGEIRO',
                   style: GoogleFonts.spaceGrotesk().copyWith(fontSize: 30)),
               const SizedBox(

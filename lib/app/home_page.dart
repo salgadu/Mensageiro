@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:flutter_svg/svg.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key});
@@ -13,24 +14,16 @@ class HomePage extends StatelessWidget {
           children: [
             Container(
               constraints: const BoxConstraints(maxHeight: 200, maxWidth: 200),
-              child: Image.asset('assets/menssageiro1.png'),
+              child: SvgPicture.asset('assets/europlus.svg'),
             ),
-            SizedBox(height: 16),
-            Text(
-              'Mensageiro',
-              style: TextStyle(
-                fontFamily: 'Dylan Medium',
-                fontSize: 30,
-              ),
-            ),
-            SizedBox(height: 32),
+            SizedBox(height: 60),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
                   onPressed: () => Modular.to.pushNamed('/auth/login/'),
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: Color(0xFF000000), 
+                    foregroundColor: Color(0xFF000000),
                     backgroundColor: Color(0xFFFFFFFF),
                     padding: EdgeInsets.all(20),
                     shape: RoundedRectangleBorder(
